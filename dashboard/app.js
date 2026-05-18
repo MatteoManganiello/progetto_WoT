@@ -242,14 +242,13 @@ const updateDashboard = async () => {
     effChart.update();
 
     const now = Date.now();
-    const backendRegen = regenMode === "Auto" ? "Auto" : String(Math.round(regenIntensity));
+    const backendRegen = String(Math.round(regenIntensity));
 
     const effectiveDrive = pendingDriveMode && now < pendingDriveUntil ? pendingDriveMode : driveMode;
     const effectiveRegen = pendingRegen !== null && now < pendingRegenUntil ? String(pendingRegen) : backendRegen;
 
     setActive("driveModeButtons", (btn) => btn.dataset.mode === effectiveDrive);
     setActive("regenButtons", (btn) => btn.dataset.regen === effectiveRegen);
-    setActive("controlModeButtons", (btn) => btn.dataset.control === controlMode);
     els.controlModeLabel.textContent = controlMode;
 
     renderAlerts({ batterySoC, temperatureC, systemEfficiency });
@@ -320,7 +319,6 @@ const wireControls = () => {
       setActive("driveModeButtons", (button) => button === btn);
       try {
         await invokeAction(CONTROL_ACTUATOR, "setDriveMode", btn.dataset.mode);
-        await invokeAction(CONTROL_ACTUATOR, "setControlMode", "Manual");
         setStatus("Online", true);
         pendingDriveMode = null;
         refreshSoon();
@@ -330,25 +328,6 @@ const wireControls = () => {
         pendingDriveMode = null;
       } finally {
         setButtonsDisabled("driveModeButtons", false);
-      }
-    });
-  });
-
-  document.querySelectorAll("#controlModeButtons button").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      if (btn.disabled) {
-        return;
-      }
-      setButtonsDisabled("controlModeButtons", true);
-      try {
-        await invokeAction(CONTROL_ACTUATOR, "setControlMode", btn.dataset.control);
-        setStatus("Online", true);
-        refreshSoon();
-      } catch (error) {
-        console.warn("Control mode update failed", error);
-        setStatus("Errore comandi", false);
-      } finally {
-        setButtonsDisabled("controlModeButtons", false);
       }
     });
   });
@@ -363,11 +342,7 @@ const wireControls = () => {
       pendingRegenUntil = Date.now() + 6000;
       setActive("regenButtons", (button) => button === btn);
       try {
-        if (btn.dataset.regen === "Auto") {
-          await invokeAction(CONTROL_ACTUATOR, "setRegenAuto", {});
-        } else {
-          await invokeAction(CONTROL_ACTUATOR, "triggerRegen", Number(btn.dataset.regen));
-        }
+        await invokeAction(CONTROL_ACTUATOR, "triggerRegen", Number(btn.dataset.regen));
         setStatus("Online", true);
         pendingRegen = null;
         refreshSoon();

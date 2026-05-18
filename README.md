@@ -20,13 +20,14 @@ Se la porta 8080 e' occupata, imposta `HTTP_PORT`.
 Se vuoi cambiare la dashboard, imposta `DASHBOARD_PORT`.
 
 Se la tua rete blocca i broker pubblici, puoi avviare solo HTTP con `MQTT_ENABLED=false`.
+Se il broker MQTT non è raggiungibile, il server parte comunque in modalità HTTP-only.
 
 Per testare soglie critiche ed eventi in modo rapido, puoi usare `STRESS_MODE=true`.
 
-La dashboard include il pulsante "Auto" per la modalita guida e la rigenerazione.
+La dashboard mostra solo il controllo manuale della guida e della rigenerazione.
 
 Servizi consumer attivi:
-- Energy Orchestrator: applica regole di efficienza in modalita Auto.
+- Energy Orchestrator: disabilitato, poiché la gestione è manuale.
 - Diagnostic Tool: logga anomalie e rischi.
 
 Telemetria MQTT:

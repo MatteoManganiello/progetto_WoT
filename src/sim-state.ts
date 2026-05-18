@@ -1,7 +1,7 @@
 export type DriveMode = "Full Electric" | "Hybrid" | "Sport" | "Save";
 export type EngineStatus = "Off" | "Idle" | "Running";
-export type ControlMode = "Auto" | "Manual";
-export type RegenMode = "Auto" | "Manual";
+export type ControlMode = "Manual";
+export type RegenMode = "Manual";
 
 export type SimulationState = {
   batterySoC: number;
@@ -49,9 +49,9 @@ export const createSimulation = () => {
     systemEfficiency: 5.2,
     engineStatus: "Idle",
     driveMode: "Hybrid",
-    controlMode: "Auto",
+    controlMode: "Manual",
     regenIntensity: 0,
-    regenMode: "Auto",
+    regenMode: "Manual",
     speedKmh: 38,
     distanceKm: 0,
     energyUsedKwh: 0.2,
@@ -66,27 +66,9 @@ export const createSimulation = () => {
   let anomalyStreak = 0;
   const ambientTemp = 32;
 
-  const applyOrchestrator = () => {
-    if (state.controlMode === "Manual") {
-      return;
-    }
-
-    if (state.batterySoC > 20 && state.speedKmh < 50) {
-      state.driveMode = "Full Electric";
-    } else if (state.batterySoC < 15) {
-      state.driveMode = "Save";
-    } else if (state.speedKmh > 90) {
-      state.driveMode = "Sport";
-    } else {
-      state.driveMode = "Hybrid";
-    }
-  };
-
   const update = (): SimulationEvents => {
     tick += 1;
     const dtSeconds = 2;
-
-    applyOrchestrator();
 
     const baseSpeed = 42 + 12 * Math.sin(tick / 12);
     const modeOffset = state.driveMode === "Sport" ? 25 : state.driveMode === "Full Electric" ? -5 : 0;
@@ -94,10 +76,6 @@ export const createSimulation = () => {
 
     const accel = (state.speedKmh - lastSpeed) / dtSeconds;
     const regenActive = accel < -0.2;
-
-    if (state.regenMode === "Auto") {
-      state.regenIntensity = regenActive ? 2 : 0;
-    }
 
     const demandFactor = 1 + state.speedKmh / 180;
     const driveFactor = state.driveMode === "Sport" ? 1.35 : state.driveMode === "Save" ? 0.75 : 1;
@@ -186,6 +164,7 @@ export const createSimulation = () => {
 
   const setDriveMode = (mode: DriveMode) => {
     state.driveMode = mode;
+    state.controlMode = "Manual";
   };
 
   const setControlMode = (mode: ControlMode) => {
@@ -200,9 +179,5 @@ export const createSimulation = () => {
     state.regenMode = "Manual";
   };
 
-  const setRegenAuto = () => {
-    state.regenMode = "Auto";
-  };
-
-  return { state, update, resetTripData, setDriveMode, setControlMode, setRegenIntensity, setRegenAuto };
+  return { state, update, resetTripData, setDriveMode, setControlMode, setRegenIntensity };
 };

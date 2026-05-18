@@ -3,22 +3,36 @@ import { HttpServer } from "@node-wot/binding-http";
 import { MqttBrokerServer } from "@node-wot/binding-mqtt";
 import http from "http";
 import fs from "fs";
+import net from "net";
 import path from "path";
 import { createPowerUnitThing } from "./thing";
 import { createEnergyStorageThing } from "./energy-storage";
 import { createControlActuatorThing } from "./control-actuator";
 import { createSimulation, SimulationEvents } from "./sim-state";
 import { startTelemetryPublisher } from "./telemetry-publisher";
-import { startEnergyOrchestrator } from "./consumers/energy-orchestrator";
 import { startDiagnosticTool } from "./consumers/diagnostic-tool";
 
 const httpPort = Number(process.env.HTTP_PORT ?? "8080");
 const dashboardPort = Number(process.env.DASHBOARD_PORT ?? "8091");
 const mqttBrokerUrl = process.env.MQTT_BROKER_URL ?? "mqtt://localhost:1883";
 const mqttEnabled = (process.env.MQTT_ENABLED ?? "true").toLowerCase() === "true";
+let mqttServerActive = false;
+
+process.on("unhandledRejection", (reason) => {
+  console.error("Unhandled Rejection:", reason);
+});
 
 const historyFile = path.join(__dirname, "..", "data", "history.json");
 const history: Array<{ timestamp: string; batterySoC: number; systemEfficiency: number; temperatureC: number }> = [];
+
+const ensureHistoryDir = () => {
+  const dir = path.dirname(historyFile);
+  try {
+    fs.mkdirSync(dir, { recursive: true });
+  } catch {
+    // ignore directory creation errors
+  }
+};
 
 const loadHistory = () => {
   try {
@@ -28,12 +42,13 @@ const loadHistory = () => {
       history.push(...parsed.slice(-300));
     }
   } catch {
-    // ignore missing history
+    // ignore missing or invalid history
   }
 };
 
 const saveHistory = () => {
   try {
+    ensureHistoryDir();
     fs.writeFileSync(historyFile, JSON.stringify(history.slice(-300), null, 2));
   } catch (error) {
     console.warn("Failed to save history", error);
@@ -101,12 +116,50 @@ servient.addServer(new HttpServer({
     next();
   }
 }));
-if (mqttEnabled) {
-  servient.addServer(new MqttBrokerServer({ uri: mqttBrokerUrl }));
-}
 
-servient
-  .start()
+const isMqttBrokerReachable = async (brokerUrl: string) => {
+  try {
+    const url = new URL(brokerUrl);
+    return await new Promise((resolve) => {
+      const socket = net.connect({ host: url.hostname, port: Number(url.port) || 1883 }, () => {
+        socket.destroy();
+        resolve(true);
+      });
+      socket.on("error", () => {
+        socket.destroy();
+        resolve(false);
+      });
+      socket.setTimeout(1500, () => {
+        socket.destroy();
+        resolve(false);
+      });
+    });
+  } catch {
+    return false;
+  }
+};
+
+const startServient = async () => {
+  if (mqttEnabled) {
+    const reachable = await isMqttBrokerReachable(mqttBrokerUrl);
+    if (reachable) {
+      mqttServerActive = true;
+      servient.addServer(new MqttBrokerServer({ uri: mqttBrokerUrl }));
+    } else {
+      mqttServerActive = false;
+      console.warn(`MQTT broker not reachable at ${mqttBrokerUrl}. Starting in HTTP-only mode.`);
+    }
+  }
+
+  try {
+    return await servient.start();
+  } catch (error) {
+    console.error("Failed to start WoT servient", error);
+    process.exit(1);
+  }
+};
+
+startServient()
   .then(async (wot) => {
     const simulation = createSimulation();
     loadHistory();
@@ -119,19 +172,20 @@ servient
     console.log(`PowerUnit TD exposed over HTTP on http://localhost:${httpPort}/powerunit`);
     console.log(`EnergyStorage TD exposed over HTTP on http://localhost:${httpPort}/energystorage`);
     console.log(`ControlActuator TD exposed over HTTP on http://localhost:${httpPort}/controlactuator`);
-    if (mqttEnabled) {
+    if (mqttServerActive) {
       console.log(`MQTT broker URL configured for events: ${mqttBrokerUrl}`);
+    } else if (mqttEnabled) {
+      console.log(`MQTT enabled, but broker is unavailable. Running without MQTT events.`);
     } else {
       console.log("MQTT disabled (set MQTT_ENABLED=true to enable).");
     }
 
     startDashboardServer();
 
-    if (mqttEnabled) {
+    if (mqttServerActive) {
       startTelemetryPublisher(simulation, mqttBrokerUrl);
     }
 
-    startEnergyOrchestrator({ baseUrl: `http://localhost:${httpPort}` });
     startDiagnosticTool({ baseUrl: `http://localhost:${httpPort}` });
 
     const intervalMs = 2000;

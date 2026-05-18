@@ -9,21 +9,17 @@ export const CONTROL_ACTUATOR_TD = {
   security: ["nosec_sc"],
   properties: {
     driveMode: { type: "string", enum: DRIVE_MODES, observable: true, readOnly: true },
-    controlMode: { type: "string", enum: ["Auto", "Manual"], observable: true, readOnly: true },
+    controlMode: { type: "string", enum: ["Manual"], observable: true, readOnly: true },
     regenIntensity: { type: "number", minimum: 0, maximum: 3, observable: true, readOnly: true },
-    regenMode: { type: "string", enum: ["Auto", "Manual"], observable: true, readOnly: true }
+    regenMode: { type: "string", enum: ["Manual"], observable: true, readOnly: true }
   },
   actions: {
     setDriveMode: {
       input: { type: "string", enum: DRIVE_MODES }
     },
-    setControlMode: {
-      input: { type: "string", enum: ["Auto", "Manual"] }
-    },
     triggerRegen: {
       input: { type: "number", minimum: 1, maximum: 3 }
-    },
-    setRegenAuto: {}
+    }
   }
 };
 
@@ -111,17 +107,6 @@ export const createControlActuatorThing = async (wot: any, simulation: ReturnTyp
     return { activeMode: state.driveMode };
   });
 
-  thing.setActionHandler("setControlMode", async (value: unknown) => {
-    const resolved = await resolveInput(value);
-    const mode = readStringInput(resolved, ["controlMode", "mode"]) as "Auto" | "Manual";
-    if (!(["Auto", "Manual"] as const).includes(mode)) {
-      throw new Error("Invalid control mode");
-    }
-    simulation.setControlMode(mode);
-    console.log(`[ControlActuator] controlMode -> ${state.controlMode}`);
-    return { controlMode: state.controlMode };
-  });
-
   thing.setActionHandler("triggerRegen", async (value: unknown) => {
     const resolved = await resolveInput(value);
     const intensity = readNumberInput(resolved, ["intensity", "regenIntensity"]);
@@ -133,11 +118,5 @@ export const createControlActuatorThing = async (wot: any, simulation: ReturnTyp
     return { regenIntensity: state.regenIntensity };
   });
 
-  thing.setActionHandler("setRegenAuto", async () => {
-    simulation.setRegenAuto();
-    console.log("[ControlActuator] regenMode -> Auto");
-    return { regenMode: state.regenMode };
-  });
-
-  return thing;
+return thing;
 };

@@ -1,122 +1,133 @@
-import { createSimulation, DRIVE_MODES, SimulationState } from "./sim-state";
+import { DRIVE_MODES, DriveMode } from "./sim-state";
+import { TwinRegistry } from "./twin/registry";
+import { TWIN_STATUS_SCHEMA, readInteractionInput } from "./wot-io";
 
-export const CONTROL_ACTUATOR_TD = {
-  "@context": ["https://www.w3.org/2019/wot/td/v1"],
+/**
+ * Thing WoT "ControlActuator": unico punto di attuazione del sistema.
+ *
+ * Le azioni non toccano la fisica direttamente. Le passano al registro del
+ * gemello, che le inoltra all'attuatore reale quando e' collegato oppure le
+ * applica al modello quando non lo e'.
+ */
+export const CONTROL_ACTUATOR_TD: WoT.ExposedThingInit = {
+  "@context": [
+    "https://www.w3.org/2022/wot/td/v1.1",
+    { mqv: "https://www.w3.org/2019/wot/mqtt#" }
+  ],
+  "@type": "Thing",
+  id: "urn:dev:ops:proactivedrive-controlactuator",
   title: "ControlActuator",
+  description: "Gemello digitale della centralina che ripartisce la propulsione.",
   securityDefinitions: {
     nosec_sc: { scheme: "nosec" }
   },
   security: ["nosec_sc"],
   properties: {
     driveMode: { type: "string", enum: DRIVE_MODES, observable: true, readOnly: true },
-    controlMode: { type: "string", enum: ["Manual"], observable: true, readOnly: true },
+    controlMode: {
+      type: "string",
+      enum: ["Manual", "Auto"],
+      observable: true,
+      readOnly: true,
+      description: "Auto delega la scelta della modalita' all'Energy Orchestrator."
+    },
     regenIntensity: { type: "number", minimum: 0, maximum: 3, observable: true, readOnly: true },
-    regenMode: { type: "string", enum: ["Manual"], observable: true, readOnly: true }
+    regenMode: { type: "string", enum: ["Manual", "Auto"], observable: true, readOnly: true },
+    commandTarget: {
+      type: "string",
+      enum: ["physical", "model"],
+      observable: true,
+      readOnly: true,
+      description: "Destinatario attuale dei comandi: attuatore reale o modello."
+    },
+    twinStatus: { ...TWIN_STATUS_SCHEMA, observable: true, readOnly: true }
   },
   actions: {
     setDriveMode: {
-      input: { type: "string", enum: DRIVE_MODES }
+      description: "Imposta la modalita' di propulsione.",
+      idempotent: true,
+      input: { type: "string", enum: DRIVE_MODES },
+      output: {
+        type: "object",
+        properties: {
+          activeMode: { type: "string", enum: DRIVE_MODES },
+          target: { type: "string", enum: ["physical", "model"] }
+        }
+      }
     },
     triggerRegen: {
-      input: { type: "number", minimum: 1, maximum: 3 }
+      description: "Imposta l'intensita' della frenata rigenerativa.",
+      idempotent: true,
+      input: { type: "number", minimum: 1, maximum: 3 },
+      output: {
+        type: "object",
+        properties: {
+          regenIntensity: { type: "number" },
+          target: { type: "string", enum: ["physical", "model"] }
+        }
+      }
+    },
+    setControlMode: {
+      description: "Passa fra controllo manuale e controllo automatico.",
+      idempotent: true,
+      input: { type: "string", enum: ["Manual", "Auto"] },
+      output: {
+        type: "object",
+        properties: {
+          controlMode: { type: "string", enum: ["Manual", "Auto"] }
+        }
+      }
     }
   }
 };
 
-export const createControlActuatorThing = async (wot: any, simulation: ReturnType<typeof createSimulation>) => {
-  const state: SimulationState = simulation.state;
+const isDriveMode = (value: unknown): value is DriveMode =>
+  typeof value === "string" && (DRIVE_MODES as string[]).includes(value);
+
+export const createControlActuatorThing = async (wot: typeof WoT, twin: TwinRegistry) => {
   const thing = await wot.produce(CONTROL_ACTUATOR_TD);
 
-  const resolveInput = async (value: unknown): Promise<unknown> => {
-    if (value && typeof value === "object") {
-      if ("arrayBuffer" in value && typeof (value as { arrayBuffer?: unknown }).arrayBuffer === "function") {
-        const buffer = Buffer.from(await (value as { arrayBuffer: () => Promise<ArrayBuffer> }).arrayBuffer());
-        const text = buffer.toString();
-        if (text.length === 0) {
-          return undefined;
-        }
-        try {
-          return JSON.parse(text);
-        } catch {
-          return text;
-        }
-      }
-      if ("value" in value && typeof (value as { value?: unknown }).value === "function") {
-        return (value as { value: () => Promise<unknown> }).value();
-      }
-    }
-    return value;
-  };
+  thing.setPropertyReadHandler("driveMode", async () => twin.snapshot().driveMode);
+  thing.setPropertyReadHandler("controlMode", async () => twin.snapshot().controlMode);
+  thing.setPropertyReadHandler("regenIntensity", async () => twin.snapshot().regenIntensity);
+  thing.setPropertyReadHandler("regenMode", async () => twin.snapshot().regenMode);
+  thing.setPropertyReadHandler("commandTarget", async () =>
+    twin.deviceStatus("actuator").live ? "physical" : "model"
+  );
+  thing.setPropertyReadHandler("twinStatus", async () => twin.deviceStatus("actuator"));
 
-  const readStringInput = (value: unknown, keys: string[]): string => {
-    if (typeof value === "string") {
-      let text = value.trim();
-      text = text.replace(/\\"/g, "\"");
-      if (text.startsWith("\"") && text.endsWith("\"")) {
-        text = text.slice(1, -1);
-      }
-      return text;
+  thing.setActionHandler("setDriveMode", async (params) => {
+    const mode = await readInteractionInput(params);
+    if (!isDriveMode(mode)) {
+      throw new Error(`Modalita' non valida: ${String(mode)}`);
     }
-    if (value && typeof value === "object") {
-      for (const key of keys) {
-        if (key in value) {
-          return String((value as Record<string, unknown>)[key]);
-        }
-      }
-      if ("value" in value) {
-        return String((value as Record<string, unknown>).value);
-      }
-    }
-    return String(value);
-  };
-
-  const readNumberInput = (value: unknown, keys: string[]): number => {
-    if (typeof value === "number") {
-      return value;
-    }
-    if (typeof value === "string") {
-      const normalized = value.replace(/\\"/g, "\"").replace(/^(\")|(\")$/g, "").trim();
-      return Number(normalized);
-    }
-    if (value && typeof value === "object") {
-      for (const key of keys) {
-        if (key in value) {
-          return Number((value as Record<string, unknown>)[key]);
-        }
-      }
-      if ("value" in value) {
-        return Number((value as Record<string, unknown>).value);
-      }
-    }
-    return Number(value);
-  };
-
-  thing.setPropertyReadHandler("driveMode", async () => state.driveMode);
-  thing.setPropertyReadHandler("controlMode", async () => state.controlMode);
-  thing.setPropertyReadHandler("regenIntensity", async () => state.regenIntensity);
-  thing.setPropertyReadHandler("regenMode", async () => state.regenMode);
-
-  thing.setActionHandler("setDriveMode", async (value: unknown) => {
-    const resolved = await resolveInput(value);
-    const mode = readStringInput(resolved, ["mode", "driveMode"]) as typeof DRIVE_MODES[number];
-    if (!DRIVE_MODES.includes(mode)) {
-      throw new Error("Invalid drive mode");
-    }
-    simulation.setDriveMode(mode);
-    console.log(`[ControlActuator] driveMode -> ${state.driveMode}`);
-    return { activeMode: state.driveMode };
+    // L'origine distingue il comando dell'utente da quello dell'orchestratore.
+    const origin = twin.getControlMode() === "Auto" ? "auto" : "manual";
+    const result = twin.setDriveMode(mode, origin);
+    console.log(`[ControlActuator] setDriveMode(${mode}) -> ${result.target}`);
+    return { activeMode: result.applied, target: result.target };
   });
 
-  thing.setActionHandler("triggerRegen", async (value: unknown) => {
-    const resolved = await resolveInput(value);
-    const intensity = readNumberInput(resolved, ["intensity", "regenIntensity"]);
+  thing.setActionHandler("triggerRegen", async (params) => {
+    const raw = await readInteractionInput(params);
+    const intensity = Number(raw);
     if (!Number.isFinite(intensity)) {
-      throw new Error("Invalid regen intensity");
+      throw new Error(`Intensita' rigenerazione non valida: ${String(raw)}`);
     }
-    simulation.setRegenIntensity(intensity);
-    console.log(`[ControlActuator] regenIntensity -> ${state.regenIntensity}`);
-    return { regenIntensity: state.regenIntensity };
+    const result = twin.setRegenIntensity(intensity);
+    console.log(`[ControlActuator] triggerRegen(${intensity}) -> ${result.target}`);
+    return { regenIntensity: result.applied, target: result.target };
   });
 
-return thing;
+  thing.setActionHandler("setControlMode", async (params) => {
+    const raw = await readInteractionInput(params);
+    if (raw !== "Manual" && raw !== "Auto") {
+      throw new Error(`Modo di controllo non valido: ${String(raw)}`);
+    }
+    const controlMode = twin.setControlMode(raw);
+    console.log(`[ControlActuator] setControlMode(${controlMode})`);
+    return { controlMode };
+  });
+
+  return thing;
 };

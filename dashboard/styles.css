@@ -380,3 +380,81 @@ canvas {
     text-align: left;
   }
 }
+
+/* --- Pannello sorgente dati del gemello digitale --- */
+
+.twin-panel {
+  margin-bottom: 22px;
+}
+
+.twin-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.twin-devices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.twin-device {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: rgba(15, 23, 42, 0.02);
+  border-left-width: 4px;
+}
+
+.twin-device.is-physical {
+  border-left-color: var(--accent-2);
+}
+
+.twin-device.is-model {
+  border-left-color: var(--accent-3);
+}
+
+.twin-device-name {
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.twin-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: #fff;
+}
+
+.twin-device.is-physical .twin-badge {
+  background: var(--accent-2);
+}
+
+.twin-device.is-model .twin-badge {
+  background: var(--accent-3);
+  color: var(--ink);
+}
+
+.twin-device-detail {
+  margin: 8px 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.twin-note {
+  margin: 16px 0 0;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.button-group.control-mode {
+  margin-top: 12px;
+}

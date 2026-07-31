@@ -1,7 +1,7 @@
 export type DriveMode = "Full Electric" | "Hybrid" | "Sport" | "Save";
 export type EngineStatus = "Off" | "Idle" | "Running";
-export type ControlMode = "Manual";
-export type RegenMode = "Manual";
+export type ControlMode = "Manual" | "Auto";
+export type RegenMode = "Manual" | "Auto";
 
 export type SimulationState = {
   batterySoC: number;
@@ -162,22 +162,46 @@ export const createSimulation = () => {
     state.energyUsedKwh = 0.2;
   };
 
-  const setDriveMode = (mode: DriveMode) => {
+  /**
+   * `origin` distingue un comando arrivato dall'utente da uno calcolato
+   * dall'Energy Orchestrator: solo il primo riporta il sistema in controllo manuale.
+   */
+  const setDriveMode = (mode: DriveMode, origin: "manual" | "auto" = "manual") => {
     state.driveMode = mode;
-    state.controlMode = "Manual";
+    if (origin === "manual") {
+      state.controlMode = "Manual";
+    }
   };
 
   const setControlMode = (mode: ControlMode) => {
     state.controlMode = mode;
   };
 
-  const setRegenIntensity = (intensity: number) => {
+  const setRegenIntensity = (intensity: number, origin: "manual" | "auto" = "manual") => {
     if (!Number.isFinite(intensity)) {
       return;
     }
     state.regenIntensity = clamp(intensity, 1, 3);
-    state.regenMode = "Manual";
+    state.regenMode = origin === "manual" ? "Manual" : "Auto";
   };
 
-  return { state, update, resetTripData, setDriveMode, setControlMode, setRegenIntensity };
+  /**
+   * Riallinea il modello alle misure provenienti da una parte fisica reale.
+   * Serve al gemello digitale: finche' un dispositivo e' vivo il modello lo insegue,
+   * cosi' quando il dispositivo cade la simulazione riparte dall'ultimo valore vero
+   * invece che da uno stato divergente.
+   */
+  const applyExternal = (partial: Partial<SimulationState>) => {
+    for (const [key, value] of Object.entries(partial)) {
+      if (value === undefined || value === null) {
+        continue;
+      }
+      (state as Record<string, unknown>)[key] = value;
+    }
+    lastSpeed = state.speedKmh;
+  };
+
+  return { state, update, resetTripData, setDriveMode, setControlMode, setRegenIntensity, applyExternal };
 };
+
+export type Simulation = ReturnType<typeof createSimulation>;

@@ -1,11 +1,28 @@
+/**
+ * Dashboard: consumer WoT lato browser.
+ *
+ * Non contiene URL di proprieta' o di azioni. Scarica le tre Thing Description
+ * e ricava da esse le `forms` di ogni interazione, compreso il sottoprotocollo
+ * degli eventi. Cambiare il binding lato server non richiede modifiche qui.
+ */
+
 const params = new URLSearchParams(window.location.search);
 const apiPort = params.get("apiPort") ?? "8080";
 const apiHost = params.get("apiHost") ?? window.location.hostname;
 const apiProtocol = params.get("apiProtocol") ?? window.location.protocol;
 const BASE_URL = `${apiProtocol}//${apiHost}:${apiPort}`;
-const POWER_UNIT = `${BASE_URL}/powerunit`;
-const ENERGY_STORAGE = `${BASE_URL}/energystorage`;
-const CONTROL_ACTUATOR = `${BASE_URL}/controlactuator`;
+
+const TD_URLS = {
+  powerUnit: `${BASE_URL}/powerunit`,
+  energyStorage: `${BASE_URL}/energystorage`,
+  controlActuator: `${BASE_URL}/controlactuator`
+};
+
+const DEVICE_LABELS = {
+  powerunit: "Gruppo propulsore",
+  battery: "Pacco batteria",
+  actuator: "Centralina"
+};
 
 const els = {
   connectionStatus: document.getElementById("connectionStatus"),
@@ -19,13 +36,121 @@ const els = {
   systemEfficiency: document.getElementById("systemEfficiency"),
   torqueNm: document.getElementById("torqueNm"),
   alertsList: document.getElementById("alertsList"),
-  controlModeLabel: document.getElementById("controlModeLabel")
+  eventLog: document.getElementById("eventLog"),
+  controlModeLabel: document.getElementById("controlModeLabel"),
+  commandTargetLabel: document.getElementById("commandTargetLabel"),
+  twinDevices: document.getElementById("twinDevices"),
+  twinSummary: document.getElementById("twinSummary")
 };
 
 let pendingDriveMode = null;
 let pendingRegen = null;
 let pendingDriveUntil = 0;
 let pendingRegenUntil = 0;
+
+// ---------------------------------------------------------------------------
+// Client WoT minimale guidato dalla Thing Description
+// ---------------------------------------------------------------------------
+
+const fetchJson = async (url, init) => {
+  const response = await fetch(url, {
+    cache: "no-store",
+    ...init,
+    headers: { Accept: "application/json", ...(init?.headers ?? {}) }
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+  return response.json();
+};
+
+const hasOp = (form, op, fallback) => {
+  const ops = form.op ?? fallback;
+  return Array.isArray(ops) ? ops.includes(op) : ops === op;
+};
+
+/**
+ * node-wot genera le href con l'indirizzo con cui il server si e' annunciato,
+ * che puo' non coincidere con quello da cui la pagina e' servita. Si conserva
+ * il percorso dichiarato nella TD e si riallinea solo l'origine.
+ */
+const alignOrigin = (href) => {
+  try {
+    const url = new URL(href);
+    return `${BASE_URL}${url.pathname}${url.search}`;
+  } catch {
+    return href;
+  }
+};
+
+const pickForm = (forms, op, fallbackOp) => {
+  const httpForms = (forms ?? []).filter((form) => typeof form.href === "string" && form.href.startsWith("http"));
+  const match = httpForms.find((form) => hasOp(form, op, fallbackOp));
+  return match ?? httpForms[0];
+};
+
+const consumeThing = async (tdUrl) => {
+  const td = await fetchJson(tdUrl);
+
+  const readProperty = async (name) => {
+    const form = pickForm(td.properties?.[name]?.forms, "readproperty", ["readproperty", "writeproperty"]);
+    if (!form) {
+      throw new Error(`Nessuna form HTTP per la proprieta' '${name}'`);
+    }
+    return fetchJson(alignOrigin(form.href));
+  };
+
+  const invokeAction = async (name, value) => {
+    const form = pickForm(td.actions?.[name]?.forms, "invokeaction", "invokeaction");
+    if (!form) {
+      throw new Error(`Nessuna form HTTP per l'azione '${name}'`);
+    }
+    return fetchJson(alignOrigin(form.href), {
+      method: form["htv:methodName"] ?? "POST",
+      headers: { "Content-Type": form.contentType ?? "application/json" },
+      body: JSON.stringify(value)
+    });
+  };
+
+  /**
+   * Sottoscrizione eventi. Il binding HTTP di node-wot dichiara
+   * `subprotocol: "longpoll"`: la richiesta resta appesa finche' l'evento non
+   * si verifica, poi viene riemessa.
+   */
+  const subscribeEvent = (name, handler) => {
+    const form = pickForm(td.events?.[name]?.forms, "subscribeevent", "subscribeevent");
+    if (!form) {
+      return () => {};
+    }
+    const href = alignOrigin(form.href);
+    let active = true;
+
+    const poll = async () => {
+      while (active) {
+        try {
+          const data = await fetchJson(href);
+          if (active) {
+            handler(data);
+          }
+        } catch {
+          // Il long-poll scade o il server si riavvia: si riprova con una pausa.
+          await new Promise((resolve) => setTimeout(resolve, 2000));
+        }
+      }
+    };
+
+    void poll();
+    return () => {
+      active = false;
+    };
+  };
+
+  return { td, readProperty, invokeAction, subscribeEvent };
+};
+
+// ---------------------------------------------------------------------------
+// Grafici
+// ---------------------------------------------------------------------------
 
 const socCtx = document.getElementById("socChart");
 const effCtx = document.getElementById("effChart");
@@ -105,24 +230,11 @@ const socChart = new Chart(socCtx, {
   type: "line",
   data: {
     labels: [],
-    datasets: [{
-      label: "SoC %",
-      data: [],
-      borderColor: "#1f7ae0",
-      backgroundColor: socGradient,
-      fill: true
-    }]
+    datasets: [{ label: "SoC %", data: [], borderColor: "#1f7ae0", backgroundColor: socGradient, fill: true }]
   },
   options: {
     ...baseChartOptions,
-    scales: {
-      ...baseChartOptions.scales,
-      y: {
-        ...baseChartOptions.scales.y,
-        min: 0,
-        max: 100
-      }
-    }
+    scales: { ...baseChartOptions.scales, y: { ...baseChartOptions.scales.y, min: 0, max: 100 } }
   }
 });
 
@@ -130,42 +242,14 @@ const effChart = new Chart(effCtx, {
   type: "line",
   data: {
     labels: [],
-    datasets: [{
-      label: "Efficiency",
-      data: [],
-      borderColor: "#14b6b1",
-      backgroundColor: effGradient,
-      fill: true
-    }]
+    datasets: [{ label: "Efficiency", data: [], borderColor: "#14b6b1", backgroundColor: effGradient, fill: true }]
   },
   options: baseChartOptions
 });
 
-const fetchJson = async (url) => {
-  const response = await fetch(url, {
-    headers: { Accept: "application/json" },
-    cache: "no-store"
-  });
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
-  }
-  return response.json();
-};
-
-const readProperty = (thing, property) =>
-  fetchJson(`${thing}/properties/${property}`);
-
-const invokeAction = async (thing, action, value) => {
-  const response = await fetch(`${thing}/actions/${action}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(value),
-    cache: "no-store"
-  });
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
-  }
-};
+// ---------------------------------------------------------------------------
+// Rendering
+// ---------------------------------------------------------------------------
 
 const setStatus = (label, ok = true) => {
   els.connectionStatus.textContent = label;
@@ -186,97 +270,43 @@ const setButtonsDisabled = (containerId, disabled) => {
   });
 };
 
-const updateDashboard = async () => {
-  try {
-    const [batterySoC, engineStatus, engineRPM, thermalHealth, temperatureC, systemEfficiency, torqueNm, estimatedRangeKm, driveMode, controlMode, regenIntensity, regenMode] =
-      await Promise.all([
-        readProperty(POWER_UNIT, "batterySoC"),
-        readProperty(POWER_UNIT, "engineStatus"),
-        readProperty(POWER_UNIT, "engineRPM"),
-        readProperty(POWER_UNIT, "thermalHealth"),
-        readProperty(POWER_UNIT, "temperatureC"),
-        readProperty(POWER_UNIT, "systemEfficiency"),
-        readProperty(POWER_UNIT, "torqueNm"),
-        readProperty(POWER_UNIT, "estimatedRangeKm"),
-        readProperty(CONTROL_ACTUATOR, "driveMode"),
-        readProperty(CONTROL_ACTUATOR, "controlMode"),
-        readProperty(CONTROL_ACTUATOR, "regenIntensity"),
-        readProperty(CONTROL_ACTUATOR, "regenMode")
-      ]);
+const renderTwinStatus = (statuses) => {
+  els.twinDevices.innerHTML = "";
+  let liveCount = 0;
 
-    setStatus("Online", true);
-
-    els.batterySoC.textContent = `${batterySoC.toFixed(1)}%`;
-    els.rangeHint.textContent = `${estimatedRangeKm.toFixed(1)} km autonomia stimata`;
-        if (els.batteryCard) {
-          els.batteryCard.classList.remove("battery-high", "battery-mid", "battery-low");
-          if (batterySoC <= 20) {
-            els.batteryCard.classList.add("battery-low");
-          } else if (batterySoC <= 45) {
-            els.batteryCard.classList.add("battery-mid");
-          } else {
-            els.batteryCard.classList.add("battery-high");
-          }
-        }
-    els.engineStatus.textContent = engineStatus;
-    els.engineRPM.textContent = `${engineRPM.toFixed(0)} rpm`;
-    els.thermalHealth.textContent = `${thermalHealth.toFixed(0)}%`;
-    els.temperatureC.textContent = temperatureC.toFixed(1);
-    els.systemEfficiency.textContent = `${systemEfficiency.toFixed(2)} km/kWh`;
-    els.torqueNm.textContent = torqueNm.toFixed(0);
-
-    const timestamp = new Date().toLocaleTimeString();
-    socChart.data.labels.push(timestamp);
-    socChart.data.datasets[0].data.push(batterySoC);
-    effChart.data.labels.push(timestamp);
-    effChart.data.datasets[0].data.push(systemEfficiency);
-
-    if (socChart.data.labels.length > 15) {
-      socChart.data.labels.shift();
-      socChart.data.datasets[0].data.shift();
-      effChart.data.labels.shift();
-      effChart.data.datasets[0].data.shift();
+  statuses.forEach((status) => {
+    if (status.live) {
+      liveCount += 1;
     }
+    const item = document.createElement("div");
+    item.className = `twin-device ${status.live ? "is-physical" : "is-model"}`;
 
-    socChart.update();
-    effChart.update();
+    const title = document.createElement("p");
+    title.className = "twin-device-name";
+    title.textContent = DEVICE_LABELS[status.deviceId] ?? status.deviceId;
 
-    const now = Date.now();
-    const backendRegen = String(Math.round(regenIntensity));
+    const badge = document.createElement("span");
+    badge.className = "twin-badge";
+    badge.textContent = status.live ? "Fisico" : "Modello";
 
-    const effectiveDrive = pendingDriveMode && now < pendingDriveUntil ? pendingDriveMode : driveMode;
-    const effectiveRegen = pendingRegen !== null && now < pendingRegenUntil ? String(pendingRegen) : backendRegen;
+    const detail = document.createElement("p");
+    detail.className = "twin-device-detail";
+    detail.textContent = status.live
+      ? `misura reale, ${Math.round(status.ageMs ?? 0)} ms fa`
+      : status.samples > 0
+        ? "dispositivo scollegato, valori ricostruiti"
+        : "dispositivo mai visto, valori ricostruiti";
 
-    setActive("driveModeButtons", (btn) => btn.dataset.mode === effectiveDrive);
-    setActive("regenButtons", (btn) => btn.dataset.regen === effectiveRegen);
-    els.controlModeLabel.textContent = controlMode;
+    item.append(title, badge, detail);
+    els.twinDevices.appendChild(item);
+  });
 
-    renderAlerts({ batterySoC, temperatureC, systemEfficiency });
-  } catch (error) {
-    setStatus("Offline", false);
-  }
-};
-
-const refreshSoon = () => {
-  setTimeout(updateDashboard, 400);
-};
-
-const loadHistory = async () => {
-  try {
-    const response = await fetch("/api/history", { cache: "no-store" });
-    if (!response.ok) {
-      return;
-    }
-    const samples = await response.json();
-    socChart.data.labels = samples.map((s) => new Date(s.timestamp).toLocaleTimeString());
-    socChart.data.datasets[0].data = samples.map((s) => s.batterySoC);
-    effChart.data.labels = samples.map((s) => new Date(s.timestamp).toLocaleTimeString());
-    effChart.data.datasets[0].data = samples.map((s) => s.systemEfficiency);
-    socChart.update();
-    effChart.update();
-  } catch {
-    // ignore history errors
-  }
+  els.twinSummary.textContent =
+    liveCount === 0
+      ? "Nessuna parte fisica collegata: il gemello lavora interamente sul modello."
+      : liveCount === statuses.length
+        ? "Tutte le parti fisiche sono collegate: il gemello rispecchia il sistema reale."
+        : `${liveCount} di ${statuses.length} parti fisiche collegate: il resto e' coperto dal modello.`;
 };
 
 const renderAlerts = ({ batterySoC, temperatureC, systemEfficiency }) => {
@@ -307,58 +337,206 @@ const renderAlerts = ({ batterySoC, temperatureC, systemEfficiency }) => {
   });
 };
 
-const wireControls = () => {
-  document.querySelectorAll("#driveModeButtons button").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      if (btn.disabled) {
-        return;
-      }
-      setButtonsDisabled("driveModeButtons", true);
-      pendingDriveMode = btn.dataset.mode;
-      pendingDriveUntil = Date.now() + 6000;
-      setActive("driveModeButtons", (button) => button === btn);
-      try {
-        await invokeAction(CONTROL_ACTUATOR, "setDriveMode", btn.dataset.mode);
-        setStatus("Online", true);
-        pendingDriveMode = null;
-        refreshSoon();
-      } catch (error) {
-        console.warn("Drive mode update failed", error);
-        setStatus("Errore comandi", false);
-        pendingDriveMode = null;
-      } finally {
-        setButtonsDisabled("driveModeButtons", false);
-      }
-    });
-  });
+const eventEntries = [];
 
-  document.querySelectorAll("#regenButtons button").forEach((btn) => {
-    btn.addEventListener("click", async () => {
-      if (btn.disabled) {
-        return;
-      }
-      setButtonsDisabled("regenButtons", true);
-      pendingRegen = btn.dataset.regen;
-      pendingRegenUntil = Date.now() + 6000;
-      setActive("regenButtons", (button) => button === btn);
-      try {
-        await invokeAction(CONTROL_ACTUATOR, "triggerRegen", Number(btn.dataset.regen));
-        setStatus("Online", true);
-        pendingRegen = null;
-        refreshSoon();
-      } catch (error) {
-        console.warn("Regen update failed", error);
-        setStatus("Errore comandi", false);
-        pendingRegen = null;
-      } finally {
-        setButtonsDisabled("regenButtons", false);
-      }
-    });
-  });
+const logEvent = (name, data) => {
+  const time = new Date().toLocaleTimeString();
+  let detail = "";
+  if (name === "physicalLinkChanged") {
+    detail = (data.changes ?? [])
+      .map((change) => `${DEVICE_LABELS[change.deviceId] ?? change.deviceId} ${change.live ? "collegato" : "scollegato"}`)
+      .join(", ");
+  } else if (name === "criticalOverheat") {
+    detail = `${data.temperatureC?.toFixed?.(1)} C (${data.source})`;
+  } else if (name === "lowEnergyWarning") {
+    detail = `${data.estimatedRangeKm?.toFixed?.(1)} km (${data.source})`;
+  } else if (name === "anomalyDetected") {
+    detail = `${data.systemEfficiency?.toFixed?.(2)} km/kWh (${data.source})`;
+  }
 
+  eventEntries.unshift(`${time} — ${name}${detail ? `: ${detail}` : ""}`);
+  eventEntries.splice(8);
+
+  els.eventLog.innerHTML = "";
+  eventEntries.forEach((entry) => {
+    const li = document.createElement("li");
+    li.textContent = entry;
+    els.eventLog.appendChild(li);
+  });
 };
 
-wireControls();
-loadHistory();
-updateDashboard();
-setInterval(updateDashboard, 2000);
+// ---------------------------------------------------------------------------
+// Ciclo principale
+// ---------------------------------------------------------------------------
+
+let things = null;
+
+const updateDashboard = async () => {
+  if (!things) {
+    return;
+  }
+  try {
+    const [
+      batterySoC, engineStatus, engineRPM, thermalHealth, temperatureC,
+      systemEfficiency, torqueNm, estimatedRangeKm,
+      driveMode, controlMode, regenIntensity, commandTarget,
+      powerStatus, batteryStatus, actuatorStatus
+    ] = await Promise.all([
+      things.powerUnit.readProperty("batterySoC"),
+      things.powerUnit.readProperty("engineStatus"),
+      things.powerUnit.readProperty("engineRPM"),
+      things.powerUnit.readProperty("thermalHealth"),
+      things.powerUnit.readProperty("temperatureC"),
+      things.powerUnit.readProperty("systemEfficiency"),
+      things.powerUnit.readProperty("torqueNm"),
+      things.powerUnit.readProperty("estimatedRangeKm"),
+      things.controlActuator.readProperty("driveMode"),
+      things.controlActuator.readProperty("controlMode"),
+      things.controlActuator.readProperty("regenIntensity"),
+      things.controlActuator.readProperty("commandTarget"),
+      things.powerUnit.readProperty("twinStatus"),
+      things.energyStorage.readProperty("twinStatus"),
+      things.controlActuator.readProperty("twinStatus")
+    ]);
+
+    setStatus("Online", true);
+
+    els.batterySoC.textContent = `${batterySoC.toFixed(1)}%`;
+    els.rangeHint.textContent = `${estimatedRangeKm.toFixed(1)} km autonomia stimata`;
+    if (els.batteryCard) {
+      els.batteryCard.classList.remove("battery-high", "battery-mid", "battery-low");
+      if (batterySoC <= 20) {
+        els.batteryCard.classList.add("battery-low");
+      } else if (batterySoC <= 45) {
+        els.batteryCard.classList.add("battery-mid");
+      } else {
+        els.batteryCard.classList.add("battery-high");
+      }
+    }
+    els.engineStatus.textContent = engineStatus;
+    els.engineRPM.textContent = `${engineRPM.toFixed(0)} rpm`;
+    els.thermalHealth.textContent = `${thermalHealth.toFixed(0)}%`;
+    els.temperatureC.textContent = temperatureC.toFixed(1);
+    els.systemEfficiency.textContent = `${systemEfficiency.toFixed(2)} km/kWh`;
+    els.torqueNm.textContent = torqueNm.toFixed(0);
+
+    renderTwinStatus([powerStatus, batteryStatus, actuatorStatus]);
+
+    const timestamp = new Date().toLocaleTimeString();
+    socChart.data.labels.push(timestamp);
+    socChart.data.datasets[0].data.push(batterySoC);
+    effChart.data.labels.push(timestamp);
+    effChart.data.datasets[0].data.push(systemEfficiency);
+
+    if (socChart.data.labels.length > 60) {
+      socChart.data.labels.shift();
+      socChart.data.datasets[0].data.shift();
+      effChart.data.labels.shift();
+      effChart.data.datasets[0].data.shift();
+    }
+
+    socChart.update();
+    effChart.update();
+
+    const now = Date.now();
+    const backendRegen = String(Math.round(regenIntensity));
+    const effectiveDrive = pendingDriveMode && now < pendingDriveUntil ? pendingDriveMode : driveMode;
+    const effectiveRegen = pendingRegen !== null && now < pendingRegenUntil ? String(pendingRegen) : backendRegen;
+
+    setActive("driveModeButtons", (btn) => btn.dataset.mode === effectiveDrive);
+    setActive("regenButtons", (btn) => btn.dataset.regen === effectiveRegen);
+    setActive("controlModeButtons", (btn) => btn.dataset.control === controlMode);
+
+    els.controlModeLabel.textContent = controlMode === "Auto" ? "Automatico" : "Manuale";
+    els.commandTargetLabel.textContent = commandTarget === "physical" ? "attuatore reale" : "modello";
+
+    renderAlerts({ batterySoC, temperatureC, systemEfficiency });
+  } catch (error) {
+    setStatus("Offline", false);
+  }
+};
+
+const refreshSoon = () => {
+  setTimeout(updateDashboard, 400);
+};
+
+const loadHistory = async () => {
+  try {
+    const samples = await fetchJson("/api/history");
+    socChart.data.labels = samples.map((s) => new Date(s.timestamp).toLocaleTimeString());
+    socChart.data.datasets[0].data = samples.map((s) => s.batterySoC);
+    effChart.data.labels = samples.map((s) => new Date(s.timestamp).toLocaleTimeString());
+    effChart.data.datasets[0].data = samples.map((s) => s.systemEfficiency);
+    socChart.update();
+    effChart.update();
+  } catch {
+    // storico non disponibile: la dashboard funziona comunque
+  }
+};
+
+const wireControls = () => {
+  const bindAction = (containerId, datasetKey, actionName, transform, pendingSetter) => {
+    document.querySelectorAll(`#${containerId} button`).forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        if (btn.disabled || !things) {
+          return;
+        }
+        setButtonsDisabled(containerId, true);
+        pendingSetter?.(btn.dataset[datasetKey]);
+        setActive(containerId, (button) => button === btn);
+        try {
+          await things.controlActuator.invokeAction(actionName, transform(btn.dataset[datasetKey]));
+          setStatus("Online", true);
+          refreshSoon();
+        } catch (error) {
+          console.warn(`Azione ${actionName} fallita`, error);
+          setStatus("Errore comandi", false);
+        } finally {
+          pendingSetter?.(null);
+          setButtonsDisabled(containerId, false);
+        }
+      });
+    });
+  };
+
+  bindAction("driveModeButtons", "mode", "setDriveMode", (value) => value, (value) => {
+    pendingDriveMode = value;
+    pendingDriveUntil = value ? Date.now() + 6000 : 0;
+  });
+
+  bindAction("regenButtons", "regen", "triggerRegen", (value) => Number(value), (value) => {
+    pendingRegen = value;
+    pendingRegenUntil = value ? Date.now() + 6000 : 0;
+  });
+
+  bindAction("controlModeButtons", "control", "setControlMode", (value) => value, null);
+};
+
+const start = async () => {
+  try {
+    const [powerUnit, energyStorage, controlActuator] = await Promise.all([
+      consumeThing(TD_URLS.powerUnit),
+      consumeThing(TD_URLS.energyStorage),
+      consumeThing(TD_URLS.controlActuator)
+    ]);
+    things = { powerUnit, energyStorage, controlActuator };
+
+    console.log("Thing Description consumate:", Object.keys(things));
+
+    // Le sottoscrizioni derivano dalla TD: se il server cambia binding, qui non cambia nulla.
+    Object.keys(powerUnit.td.events ?? {}).forEach((eventName) => {
+      powerUnit.subscribeEvent(eventName, (data) => logEvent(eventName, data));
+    });
+
+    wireControls();
+    await loadHistory();
+    await updateDashboard();
+    setInterval(updateDashboard, 2000);
+  } catch (error) {
+    console.error("Impossibile consumare le Thing Description", error);
+    setStatus("TD non raggiungibili", false);
+    setTimeout(start, 3000);
+  }
+};
+
+void start();

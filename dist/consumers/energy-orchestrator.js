@@ -1,72 +1,68 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.startEnergyOrchestrator = void 0;
-const fetchJson = async (url) => {
-    const response = await fetch(url, { headers: { Accept: "application/json" }, cache: "no-store" });
-    if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-    }
-    return response.json();
-};
-const postJson = async (url, payload) => {
-    const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-        cache: "no-store"
-    });
-    if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-    }
-};
+exports.startEnergyOrchestrator = exports.computeDriveMode = void 0;
+const wot_client_1 = require("./wot-client");
+/**
+ * Regole di efficienza. Restano una funzione pura, cosi' sono verificabili
+ * dai test senza avviare ne' broker ne' servient.
+ */
 const computeDriveMode = (snapshot) => {
-    if (snapshot.batterySoC > 20 && snapshot.speedKmh < 50) {
-        return "Full Electric";
-    }
     if (snapshot.batterySoC < 15) {
         return "Save";
+    }
+    if (snapshot.batterySoC > 20 && snapshot.speedKmh < 50) {
+        return "Full Electric";
     }
     if (snapshot.speedKmh > 90) {
         return "Sport";
     }
     return "Hybrid";
 };
-const startEnergyOrchestrator = (config) => {
+exports.computeDriveMode = computeDriveMode;
+/**
+ * ENERGY ORCHESTRATOR — consumer WoT.
+ *
+ * Legge lo stato dalle Thing consumate e agisce con `invokeAction`. Interviene
+ * solo quando l'utente ha ceduto il controllo (`controlMode === "Auto"`).
+ */
+const startEnergyOrchestrator = async (config) => {
     const intervalMs = config.intervalMs ?? 4000;
-    const controlActuator = `${config.baseUrl}/controlactuator`;
-    const powerUnit = `${config.baseUrl}/powerunit`;
-    let timer;
+    const { wot, servient } = await (0, wot_client_1.createConsumerServient)();
+    const powerUnit = await (0, wot_client_1.consumeThing)(wot, config.powerUnitTd);
+    const controlActuator = await (0, wot_client_1.consumeThing)(wot, config.controlActuatorTd);
+    console.log("[Orchestrator] TD consumate, in attesa di controlMode=Auto");
+    let lastAppliedMode;
     const tick = async () => {
         try {
             const [batterySoC, speedKmh, controlMode, driveMode] = await Promise.all([
-                fetchJson(`${powerUnit}/properties/batterySoC`),
-                fetchJson(`${powerUnit}/properties/speedKmh`),
-                fetchJson(`${controlActuator}/properties/controlMode`),
-                fetchJson(`${controlActuator}/properties/driveMode`)
+                (0, wot_client_1.readValue)(powerUnit, "batterySoC"),
+                (0, wot_client_1.readValue)(powerUnit, "speedKmh"),
+                (0, wot_client_1.readValue)(controlActuator, "controlMode"),
+                (0, wot_client_1.readValue)(controlActuator, "driveMode")
             ]);
-            const snapshot = {
-                batterySoC,
-                speedKmh,
-                controlMode
-            };
-            if (snapshot.controlMode !== "Auto") {
+            if (controlMode !== "Auto") {
+                lastAppliedMode = undefined;
                 return;
             }
-            const targetDriveMode = computeDriveMode(snapshot);
-            if (driveMode !== targetDriveMode) {
-                await postJson(`${controlActuator}/actions/setDriveMode`, targetDriveMode);
+            const target = (0, exports.computeDriveMode)({ batterySoC, speedKmh });
+            if (target === driveMode || target === lastAppliedMode) {
+                return;
             }
+            const output = await controlActuator.invokeAction("setDriveMode", target);
+            const result = (await output?.value());
+            lastAppliedMode = target;
+            console.log(`[Orchestrator] SoC ${batterySoC.toFixed(1)}% @ ${speedKmh.toFixed(0)} km/h -> ${target}` +
+                (result?.target ? ` (applicato su: ${result.target})` : ""));
         }
         catch (error) {
-            console.warn("[Orchestrator] update failed", error);
+            console.warn("[Orchestrator] ciclo fallito", error);
         }
     };
-    timer = setInterval(tick, intervalMs);
+    const timer = setInterval(tick, intervalMs);
     void tick();
-    return () => {
-        if (timer) {
-            clearInterval(timer);
-        }
+    return async () => {
+        clearInterval(timer);
+        await servient.shutdown();
     };
 };
 exports.startEnergyOrchestrator = startEnergyOrchestrator;

@@ -1,42 +1,30 @@
+import { consumeThing, createConsumerServient, readValue } from "./wot-client";
+
 type OrchestratorConfig = {
-  baseUrl: string;
+  powerUnitTd: string;
+  controlActuatorTd: string;
   intervalMs?: number;
 };
 
 type DriveMode = "Full Electric" | "Hybrid" | "Sport" | "Save";
 
-type ControlSnapshot = {
+type Snapshot = {
   batterySoC: number;
   speedKmh: number;
   controlMode: string;
+  driveMode: DriveMode;
 };
 
-const fetchJson = async (url: string) => {
-  const response = await fetch(url, { headers: { Accept: "application/json" }, cache: "no-store" });
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
-  }
-  return response.json();
-};
-
-const postJson = async (url: string, payload: unknown) => {
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-    cache: "no-store"
-  });
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}`);
-  }
-};
-
-const computeDriveMode = (snapshot: ControlSnapshot): DriveMode => {
-  if (snapshot.batterySoC > 20 && snapshot.speedKmh < 50) {
-    return "Full Electric";
-  }
+/**
+ * Regole di efficienza. Restano una funzione pura, cosi' sono verificabili
+ * dai test senza avviare ne' broker ne' servient.
+ */
+export const computeDriveMode = (snapshot: Pick<Snapshot, "batterySoC" | "speedKmh">): DriveMode => {
   if (snapshot.batterySoC < 15) {
     return "Save";
+  }
+  if (snapshot.batterySoC > 20 && snapshot.speedKmh < 50) {
+    return "Full Electric";
   }
   if (snapshot.speedKmh > 90) {
     return "Sport";
@@ -44,47 +32,59 @@ const computeDriveMode = (snapshot: ControlSnapshot): DriveMode => {
   return "Hybrid";
 };
 
-export const startEnergyOrchestrator = (config: OrchestratorConfig) => {
+/**
+ * ENERGY ORCHESTRATOR — consumer WoT.
+ *
+ * Legge lo stato dalle Thing consumate e agisce con `invokeAction`. Interviene
+ * solo quando l'utente ha ceduto il controllo (`controlMode === "Auto"`).
+ */
+export const startEnergyOrchestrator = async (config: OrchestratorConfig) => {
   const intervalMs = config.intervalMs ?? 4000;
-  const controlActuator = `${config.baseUrl}/controlactuator`;
-  const powerUnit = `${config.baseUrl}/powerunit`;
+  const { wot, servient } = await createConsumerServient();
 
-  let timer: NodeJS.Timeout | undefined;
+  const powerUnit = await consumeThing(wot, config.powerUnitTd);
+  const controlActuator = await consumeThing(wot, config.controlActuatorTd);
+
+  console.log("[Orchestrator] TD consumate, in attesa di controlMode=Auto");
+
+  let lastAppliedMode: DriveMode | undefined;
 
   const tick = async () => {
     try {
       const [batterySoC, speedKmh, controlMode, driveMode] = await Promise.all([
-        fetchJson(`${powerUnit}/properties/batterySoC`),
-        fetchJson(`${powerUnit}/properties/speedKmh`),
-        fetchJson(`${controlActuator}/properties/controlMode`),
-        fetchJson(`${controlActuator}/properties/driveMode`)
+        readValue<number>(powerUnit, "batterySoC"),
+        readValue<number>(powerUnit, "speedKmh"),
+        readValue<string>(controlActuator, "controlMode"),
+        readValue<DriveMode>(controlActuator, "driveMode")
       ]);
 
-      const snapshot: ControlSnapshot = {
-        batterySoC,
-        speedKmh,
-        controlMode
-      };
-
-      if (snapshot.controlMode !== "Auto") {
+      if (controlMode !== "Auto") {
+        lastAppliedMode = undefined;
         return;
       }
 
-      const targetDriveMode = computeDriveMode(snapshot);
-      if (driveMode !== targetDriveMode) {
-        await postJson(`${controlActuator}/actions/setDriveMode`, targetDriveMode);
+      const target = computeDriveMode({ batterySoC, speedKmh });
+      if (target === driveMode || target === lastAppliedMode) {
+        return;
       }
+
+      const output = await controlActuator.invokeAction("setDriveMode", target);
+      const result = (await output?.value()) as { target?: string } | undefined;
+      lastAppliedMode = target;
+      console.log(
+        `[Orchestrator] SoC ${batterySoC.toFixed(1)}% @ ${speedKmh.toFixed(0)} km/h -> ${target}` +
+        (result?.target ? ` (applicato su: ${result.target})` : "")
+      );
     } catch (error) {
-      console.warn("[Orchestrator] update failed", error);
+      console.warn("[Orchestrator] ciclo fallito", error);
     }
   };
 
-  timer = setInterval(tick, intervalMs);
+  const timer = setInterval(tick, intervalMs);
   void tick();
 
-  return () => {
-    if (timer) {
-      clearInterval(timer);
-    }
+  return async () => {
+    clearInterval(timer);
+    await servient.shutdown();
   };
 };

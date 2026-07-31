@@ -1,995 +1,5 @@
 [
   {
-    "timestamp": "2026-05-10T11:59:46.865Z",
-    "batterySoC": 89.50678076410709,
-    "systemEfficiency": 1.1436899502438105,
-    "temperatureC": 42.51292375854096
-  },
-  {
-    "timestamp": "2026-05-10T11:59:48.866Z",
-    "batterySoC": 90.45585744873452,
-    "systemEfficiency": 1.14370008059508,
-    "temperatureC": 42.27876561126057
-  },
-  {
-    "timestamp": "2026-05-10T11:59:50.869Z",
-    "batterySoC": 91.40665348142264,
-    "systemEfficiency": 1.1437095413469607,
-    "temperatureC": 42.045102567230686
-  },
-  {
-    "timestamp": "2026-05-10T11:59:52.871Z",
-    "batterySoC": 92.35920035297353,
-    "systemEfficiency": 1.1437183202800643,
-    "temperatureC": 41.81185758545369
-  },
-  {
-    "timestamp": "2026-05-10T11:59:54.873Z",
-    "batterySoC": 93.31351740262066,
-    "systemEfficiency": 1.143726409905487,
-    "temperatureC": 41.57898130112123
-  },
-  {
-    "timestamp": "2026-05-10T11:59:56.875Z",
-    "batterySoC": 94.26961168380637,
-    "systemEfficiency": 1.1437338075166086,
-    "temperatureC": 41.34645181782811
-  },
-  {
-    "timestamp": "2026-05-10T11:59:58.877Z",
-    "batterySoC": 95.22747791522794,
-    "systemEfficiency": 1.1437405152076974,
-    "temperatureC": 41.11427431905092
-  },
-  {
-    "timestamp": "2026-05-10T12:00:00.879Z",
-    "batterySoC": 96.18709851749209,
-    "systemEfficiency": 1.1437465398591975,
-    "temperatureC": 40.88248050140958
-  },
-  {
-    "timestamp": "2026-05-10T12:00:02.881Z",
-    "batterySoC": 97.14844373512352,
-    "systemEfficiency": 1.1437518930897965,
-    "temperatureC": 40.651127833470056
-  },
-  {
-    "timestamp": "2026-05-10T12:00:04.883Z",
-    "batterySoC": 98.11147184308052,
-    "systemEfficiency": 1.1437565911756127,
-    "temperatureC": 40.420298645060605
-  },
-  {
-    "timestamp": "2026-05-10T12:00:06.886Z",
-    "batterySoC": 99.07612943634463,
-    "systemEfficiency": 1.1437606549370585,
-    "temperatureC": 40.19009905325312
-  },
-  {
-    "timestamp": "2026-05-10T12:00:08.888Z",
-    "batterySoC": 100,
-    "systemEfficiency": 1.1437641095941729,
-    "temperatureC": 39.960657732297875
-  },
-  {
-    "timestamp": "2026-05-10T12:00:10.890Z",
-    "batterySoC": 100,
-    "systemEfficiency": 1.1437669845914211,
-    "temperatureC": 39.732124535886115
-  },
-  {
-    "timestamp": "2026-05-10T12:00:12.892Z",
-    "batterySoC": 100,
-    "systemEfficiency": 1.1437906784578429,
-    "temperatureC": 38.83016079980953
-  },
-  {
-    "timestamp": "2026-05-10T12:00:14.894Z",
-    "batterySoC": 100,
-    "systemEfficiency": 1.1438138634486625,
-    "temperatureC": 37.95525597581525
-  },
-  {
-    "timestamp": "2026-05-10T12:00:16.896Z",
-    "batterySoC": 100,
-    "systemEfficiency": 1.143836580318372,
-    "temperatureC": 37.106598296540795
-  },
-  {
-    "timestamp": "2026-05-10T12:00:18.898Z",
-    "batterySoC": 100,
-    "systemEfficiency": 1.1438588730704238,
-    "temperatureC": 36.28340034764457
-  },
-  {
-    "timestamp": "2026-05-10T12:00:20.900Z",
-    "batterySoC": 100,
-    "systemEfficiency": 1.143880788651827,
-    "temperatureC": 35.48489833721524
-  },
-  {
-    "timestamp": "2026-05-10T12:00:22.902Z",
-    "batterySoC": 100,
-    "systemEfficiency": 1.1439023766273169,
-    "temperatureC": 34.71035138709879
-  },
-  {
-    "timestamp": "2026-05-10T12:00:24.904Z",
-    "batterySoC": 99.6252348964429,
-    "systemEfficiency": 1.143902334670351,
-    "temperatureC": 34.50904084548583
-  },
-  {
-    "timestamp": "2026-05-10T12:00:26.906Z",
-    "batterySoC": 99.25104029582066,
-    "systemEfficiency": 1.143902103214302,
-    "temperatureC": 34.313769620121256
-  },
-  {
-    "timestamp": "2026-05-10T12:00:28.909Z",
-    "batterySoC": 98.87727411326156,
-    "systemEfficiency": 1.1439017294643792,
-    "temperatureC": 34.12435653151762
-  },
-  {
-    "timestamp": "2026-05-10T12:00:30.911Z",
-    "batterySoC": 98.50379129048979,
-    "systemEfficiency": 1.143901261609886,
-    "temperatureC": 33.94062583557209
-  },
-  {
-    "timestamp": "2026-05-10T12:00:32.914Z",
-    "batterySoC": 98.13044480259168,
-    "systemEfficiency": 1.1439007484897523,
-    "temperatureC": 33.76240706050493
-  },
-  {
-    "timestamp": "2026-05-10T12:00:34.916Z",
-    "batterySoC": 97.75708667843143,
-    "systemEfficiency": 1.143900239253565,
-    "temperatureC": 33.58953484868978
-  },
-  {
-    "timestamp": "2026-05-10T12:00:36.918Z",
-    "batterySoC": 97.38356902763385,
-    "systemEfficiency": 1.143899783020446,
-    "temperatureC": 33.42184880322909
-  },
-  {
-    "timestamp": "2026-05-10T12:00:38.920Z",
-    "batterySoC": 97.00974506700666,
-    "systemEfficiency": 1.1438994285381479,
-    "temperatureC": 33.25919333913222
-  },
-  {
-    "timestamp": "2026-05-10T12:00:40.922Z",
-    "batterySoC": 96.63547013927847,
-    "systemEfficiency": 1.1438992238447336,
-    "temperatureC": 33.10141753895825
-  },
-  {
-    "timestamp": "2026-05-10T12:00:42.925Z",
-    "batterySoC": 96.26060271708195,
-    "systemEfficiency": 1.1438992159351857,
-    "temperatureC": 32.948375012789505
-  },
-  {
-    "timestamp": "2026-05-10T12:00:44.925Z",
-    "batterySoC": 95.88500538521414,
-    "systemEfficiency": 1.1438994504352626,
-    "temperatureC": 32.79992376240582
-  },
-  {
-    "timestamp": "2026-05-10T12:00:46.926Z",
-    "batterySoC": 95.50854579435659,
-    "systemEfficiency": 1.143899971284863,
-    "temperatureC": 32.65592604953364
-  },
-  {
-    "timestamp": "2026-05-10T12:00:48.929Z",
-    "batterySoC": 95.13109757963606,
-    "systemEfficiency": 1.1439008204330985,
-    "temperatureC": 32.51624826804763
-  },
-  {
-    "timestamp": "2026-05-10T12:00:50.931Z",
-    "batterySoC": 94.75254123765068,
-    "systemEfficiency": 1.1439020375471922,
-    "temperatureC": 32.3807608200062
-  },
-  {
-    "timestamp": "2026-05-10T12:00:52.934Z",
-    "batterySoC": 94.37276495587449,
-    "systemEfficiency": 1.143903659737221,
-    "temperatureC": 32.249337995406016
-  },
-  {
-    "timestamp": "2026-05-10T12:00:54.936Z",
-    "batterySoC": 93.99166538868415,
-    "systemEfficiency": 1.143905721298615,
-    "temperatureC": 32.12185785554384
-  },
-  {
-    "timestamp": "2026-05-10T12:00:56.938Z",
-    "batterySoC": 93.60914837462158,
-    "systemEfficiency": 1.1438868930131345,
-    "temperatureC": 32.584917569567864
-  },
-  {
-    "timestamp": "2026-05-10T12:00:58.940Z",
-    "batterySoC": 93.22512958991469,
-    "systemEfficiency": 1.1438685648167308,
-    "temperatureC": 33.04289123176807
-  },
-  {
-    "timestamp": "2026-05-10T12:01:00.942Z",
-    "batterySoC": 92.83953513372029,
-    "systemEfficiency": 1.1438507611950093,
-    "temperatureC": 33.49603027270912
-  },
-  {
-    "timestamp": "2026-05-10T12:01:02.944Z",
-    "batterySoC": 92.45230204102751,
-    "systemEfficiency": 1.1438335029988596,
-    "temperatureC": 33.94455793795301
-  },
-  {
-    "timestamp": "2026-05-10T12:01:04.946Z",
-    "batterySoC": 92.06337871966181,
-    "systemEfficiency": 1.1438168072999697,
-    "temperatureC": 34.38866884994756
-  },
-  {
-    "timestamp": "2026-05-10T12:01:06.948Z",
-    "batterySoC": 91.67272530835672,
-    "systemEfficiency": 1.1438006872725837,
-    "temperatureC": 34.828528748568175
-  },
-  {
-    "timestamp": "2026-05-10T12:01:08.950Z",
-    "batterySoC": 91.28031395340795,
-    "systemEfficiency": 1.1437851521023228,
-    "temperatureC": 35.264274412473476
-  },
-  {
-    "timestamp": "2026-05-10T12:01:10.952Z",
-    "batterySoC": 90.8861290019901,
-    "systemEfficiency": 1.1437702069227051,
-    "temperatureC": 35.69601376217413
-  },
-  {
-    "timestamp": "2026-05-10T12:01:12.953Z",
-    "batterySoC": 90.49016711079382,
-    "systemEfficiency": 1.1437558527797973,
-    "temperatureC": 36.12382614444696
-  },
-  {
-    "timestamp": "2026-05-10T12:01:14.955Z",
-    "batterySoC": 90.09243726922989,
-    "systemEfficiency": 1.143742086625249,
-    "temperatureC": 36.54776279646119
-  },
-  {
-    "timestamp": "2026-05-10T12:01:16.958Z",
-    "batterySoC": 89.69296073703883,
-    "systemEfficiency": 1.1437289013377467,
-    "temperatureC": 36.967847486730534
-  },
-  {
-    "timestamp": "2026-05-10T12:01:18.959Z",
-    "batterySoC": 89.2917708967393,
-    "systemEfficiency": 1.1437162857727485,
-    "temperatureC": 37.38407732877127
-  },
-  {
-    "timestamp": "2026-05-10T12:01:20.961Z",
-    "batterySoC": 88.88891302193905,
-    "systemEfficiency": 1.1437042248401381,
-    "temperatureC": 37.796423762142375
-  },
-  {
-    "timestamp": "2026-05-10T12:01:22.963Z",
-    "batterySoC": 88.4844439631169,
-    "systemEfficiency": 1.1436926996092693,
-    "temperatureC": 38.20483369437556
-  },
-  {
-    "timestamp": "2026-05-10T12:01:24.965Z",
-    "batterySoC": 88.07843175305612,
-    "systemEfficiency": 1.1436816874406603,
-    "temperatureC": 38.60923079618137
-  },
-  {
-    "timestamp": "2026-05-10T12:01:26.967Z",
-    "batterySoC": 87.67095513466785,
-    "systemEfficiency": 1.1436711621434246,
-    "temperatureC": 39.009516941247824
-  },
-  {
-    "timestamp": "2026-05-10T12:01:28.969Z",
-    "batterySoC": 87.26210301448174,
-    "systemEfficiency": 1.1436610941573424,
-    "temperatureC": 39.405573780938795
-  },
-  {
-    "timestamp": "2026-05-10T12:01:30.971Z",
-    "batterySoC": 86.85197384559672,
-    "systemEfficiency": 1.143651450758306,
-    "temperatureC": 39.79726444325815
-  },
-  {
-    "timestamp": "2026-05-10T12:01:32.972Z",
-    "batterySoC": 86.44067494437446,
-    "systemEfficiency": 1.1436421962857093,
-    "temperatureC": 40.18443534457765
-  },
-  {
-    "timestamp": "2026-05-10T12:01:34.975Z",
-    "batterySoC": 86.02832174561809,
-    "systemEfficiency": 1.1436332923902008,
-    "temperatureC": 40.566918101838574
-  },
-  {
-    "timestamp": "2026-05-10T12:01:36.977Z",
-    "batterySoC": 85.61503700140534,
-    "systemEfficiency": 1.14362469830008,
-    "temperatureC": 40.944531532234976
-  },
-  {
-    "timestamp": "2026-05-10T12:01:38.978Z",
-    "batterySoC": 85.20094992913685,
-    "systemEfficiency": 1.1436163711044793,
-    "temperatureC": 41.31708372677407
-  },
-  {
-    "timestamp": "2026-05-10T12:01:40.981Z",
-    "batterySoC": 84.78619531471222,
-    "systemEfficiency": 1.143608266051373,
-    "temperatureC": 41.684374183591586
-  },
-  {
-    "timestamp": "2026-05-10T12:01:42.982Z",
-    "batterySoC": 84.37091257705838,
-    "systemEfficiency": 1.1436003368583327,
-    "temperatureC": 42.046195986480335
-  },
-  {
-    "timestamp": "2026-05-10T12:01:44.985Z",
-    "batterySoC": 83.95524480050277,
-    "systemEfficiency": 1.1435925360338786,
-    "temperatureC": 42.40233801377187
-  },
-  {
-    "timestamp": "2026-07-31T15:53:01.470Z",
-    "batterySoC": 77.6035576124544,
-    "systemEfficiency": 0.10347606587718579,
-    "temperatureC": 61.955380165363096,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:03.470Z",
-    "batterySoC": 77.20535182829028,
-    "systemEfficiency": 0.18460714919785498,
-    "temperatureC": 61.91537852851087,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:05.470Z",
-    "batterySoC": 76.80540721049285,
-    "systemEfficiency": 0.25039045486956796,
-    "temperatureC": 61.87985882080942,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:07.472Z",
-    "batterySoC": 76.40376039029452,
-    "systemEfficiency": 0.30515672335862865,
-    "temperatureC": 61.84866111727159,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:09.472Z",
-    "batterySoC": 76.00045981293856,
-    "systemEfficiency": 0.35172613404448977,
-    "temperatureC": 61.821602812401984,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:11.474Z",
-    "batterySoC": 75.59556540144834,
-    "systemEfficiency": 0.3920110766251101,
-    "temperatureC": 61.79847975586817,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:13.476Z",
-    "batterySoC": 75.18914814073608,
-    "systemEfficiency": 0.4273518070822836,
-    "temperatureC": 61.77906754007271,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:15.477Z",
-    "batterySoC": 74.78128958493726,
-    "systemEfficiency": 0.4587136067589596,
-    "temperatureC": 61.76312293064692,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:17.479Z",
-    "batterySoC": 74.37208129139009,
-    "systemEfficiency": 0.48680783839880437,
-    "temperatureC": 61.750385429896355,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:19.480Z",
-    "batterySoC": 73.96162418518857,
-    "systemEfficiency": 0.5121691095149349,
-    "temperatureC": 61.74057896230573,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:21.481Z",
-    "batterySoC": 73.55002785871926,
-    "systemEfficiency": 0.5352060599566233,
-    "temperatureC": 61.73341367036495,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:23.483Z",
-    "batterySoC": 73.13740981104336,
-    "systemEfficiency": 0.5562357308897169,
-    "temperatureC": 61.728587808212595,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:25.483Z",
-    "batterySoC": 72.7238946324031,
-    "systemEfficiency": 0.5755073951897235,
-    "temperatureC": 61.72578971991531,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:27.484Z",
-    "batterySoC": 72.30961313951235,
-    "systemEfficiency": 0.5932194387953773,
-    "temperatureC": 61.724699888614694,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:29.485Z",
-    "batterySoC": 71.89470146763277,
-    "systemEfficiency": 0.6095315492661475,
-    "temperatureC": 61.72499304228219,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:31.486Z",
-    "batterySoC": 71.47930012573703,
-    "systemEfficiency": 0.6245736669317741,
-    "temperatureC": 61.72634030143019,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:33.487Z",
-    "batterySoC": 71.0635530213166,
-    "systemEfficiency": 0.6384526593979052,
-    "temperatureC": 61.728411353837124,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:35.489Z",
-    "batterySoC": 77.6035576124544,
-    "systemEfficiency": 0.6512573669747073,
-    "temperatureC": 61.73087664115747,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:37.489Z",
-    "batterySoC": 76.80540721049285,
-    "systemEfficiency": 0.6630624637793056,
-    "temperatureC": 61.73340954220569,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:39.491Z",
-    "batterySoC": 76.00045981293856,
-    "systemEfficiency": 0.6739314452318972,
-    "temperatureC": 61.73568853772684,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:41.491Z",
-    "batterySoC": 75.18914814073608,
-    "systemEfficiency": 0.6839189624393932,
-    "temperatureC": 61.73739934159578,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:43.493Z",
-    "batterySoC": 74.37208129139009,
-    "systemEfficiency": 0.6930726621885541,
-    "temperatureC": 61.73823698362048,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:45.493Z",
-    "batterySoC": 73.55002785871926,
-    "systemEfficiency": 0.701434648318927,
-    "temperatureC": 61.737907829461285,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:47.495Z",
-    "batterySoC": 72.7238946324031,
-    "systemEfficiency": 0.7090426499511433,
-    "temperatureC": 61.73613152361524,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:49.497Z",
-    "batterySoC": 71.89470146763277,
-    "systemEfficiency": 0.7159309603948717,
-    "temperatureC": 61.732642841948994,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:51.498Z",
-    "batterySoC": 71.0635530213166,
-    "systemEfficiency": 0.7221311948965997,
-    "temperatureC": 61.72719344089203,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:53.499Z",
-    "batterySoC": 71.0635530213166,
-    "systemEfficiency": 0.7276729039255131,
-    "temperatureC": 61.719553491120024,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:55.503Z",
-    "batterySoC": 71.0635530213166,
-    "systemEfficiency": 0.7325840702198194,
-    "temperatureC": 61.7095131843601,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:57.505Z",
-    "batterySoC": 70.24464814827468,
-    "systemEfficiency": 0.7368915114862763,
-    "temperatureC": 61.69688410283093,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:53:59.507Z",
-    "batterySoC": 69.83721407586712,
-    "systemEfficiency": 0.740621205875736,
-    "temperatureC": 61.68150044178477,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:59:19.368Z",
-    "batterySoC": 77.6035576124544,
-    "systemEfficiency": 0.10347606587718579,
-    "temperatureC": 61.955380165363096,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:59:21.367Z",
-    "batterySoC": 77.20535182829028,
-    "systemEfficiency": 0.18460714919785498,
-    "temperatureC": 61.91537852851087,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:59:23.368Z",
-    "batterySoC": 76.80540721049285,
-    "systemEfficiency": 0.25039045486956796,
-    "temperatureC": 61.87985882080942,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:59:25.370Z",
-    "batterySoC": 76.40376039029452,
-    "systemEfficiency": 0.30515672335862865,
-    "temperatureC": 61.84866111727159,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:59:27.371Z",
-    "batterySoC": 76.00045981293856,
-    "systemEfficiency": 0.35172613404448977,
-    "temperatureC": 61.821602812401984,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:59:29.372Z",
-    "batterySoC": 75.59556540144834,
-    "systemEfficiency": 0.3920110766251101,
-    "temperatureC": 61.79847975586817,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:59:31.373Z",
-    "batterySoC": 75.18914814073608,
-    "systemEfficiency": 0.4273518070822836,
-    "temperatureC": 61.77906754007271,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:59:33.374Z",
-    "batterySoC": 74.78128958493726,
-    "systemEfficiency": 0.4587136067589596,
-    "temperatureC": 61.76312293064692,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:59:35.375Z",
-    "batterySoC": 74.37208129139009,
-    "systemEfficiency": 0.48680783839880437,
-    "temperatureC": 61.750385429896355,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:59:37.376Z",
-    "batterySoC": 73.96162418518857,
-    "systemEfficiency": 0.5121691095149349,
-    "temperatureC": 61.74057896230573,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:59:39.378Z",
-    "batterySoC": 73.55002785871926,
-    "systemEfficiency": 0.5352060599566233,
-    "temperatureC": 61.73341367036495,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:59:41.379Z",
-    "batterySoC": 73.13740981104336,
-    "systemEfficiency": 0.5562357308897169,
-    "temperatureC": 61.728587808212595,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:59:43.379Z",
-    "batterySoC": 72.7238946324031,
-    "systemEfficiency": 0.5755073951897235,
-    "temperatureC": 61.72578971991531,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T15:59:45.381Z",
-    "batterySoC": 77.20535182829028,
-    "systemEfficiency": 0.18460714919785498,
-    "temperatureC": 61.91537852851087,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T15:59:47.381Z",
-    "batterySoC": 76.40376039029452,
-    "systemEfficiency": 0.30515672335862865,
-    "temperatureC": 61.84866111727159,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T15:59:49.382Z",
-    "batterySoC": 75.59556540144834,
-    "systemEfficiency": 0.3920110766251101,
-    "temperatureC": 61.79847975586817,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T15:59:51.383Z",
-    "batterySoC": 74.78128958493726,
-    "systemEfficiency": 0.4587136067589596,
-    "temperatureC": 61.76312293064692,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T15:59:53.385Z",
-    "batterySoC": 73.96162418518857,
-    "systemEfficiency": 0.5121691095149349,
-    "temperatureC": 61.74057896230573,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T15:59:55.385Z",
-    "batterySoC": 73.13740981104336,
-    "systemEfficiency": 0.5562357308897169,
-    "temperatureC": 61.728587808212595,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T15:59:57.386Z",
-    "batterySoC": 72.30961313951235,
-    "systemEfficiency": 0.5932194387953773,
-    "temperatureC": 61.724699888614694,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T15:59:59.387Z",
-    "batterySoC": 71.47930012573703,
-    "systemEfficiency": 0.6245736669317741,
-    "temperatureC": 61.72634030143019,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:00:01.389Z",
-    "batterySoC": 70.64760646160238,
-    "systemEfficiency": 0.6512573669747073,
-    "temperatureC": 61.73087664115747,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:00:03.389Z",
-    "batterySoC": 69.81570610169805,
-    "systemEfficiency": 0.6739314452318972,
-    "temperatureC": 61.73568853772684,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:00:05.391Z",
-    "batterySoC": 68.98477872888459,
-    "systemEfficiency": 0.6930726621885541,
-    "temperatureC": 61.73823698362048,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:00:07.391Z",
-    "batterySoC": 68.15597706110884,
-    "systemEfficiency": 0.7090426499511433,
-    "temperatureC": 61.73613152361524,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:00:09.393Z",
-    "batterySoC": 67.33039490551275,
-    "systemEfficiency": 0.7221311948965997,
-    "temperatureC": 61.72719344089203,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:00:11.394Z",
-    "batterySoC": 66.50903684516872,
-    "systemEfficiency": 0.7325840702198194,
-    "temperatureC": 61.7095131843601,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:00:13.395Z",
-    "batterySoC": 65.69279039852967,
-    "systemEfficiency": 0.740621205875736,
-    "temperatureC": 61.68150044178477,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:00:15.395Z",
-    "batterySoC": 64.88240142315358,
-    "systemEfficiency": 0.7464485863390107,
-    "temperatureC": 61.641925467257195,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:00:17.395Z",
-    "batterySoC": 64.07845344535262,
-    "systemEfficiency": 0.7502659340358631,
-    "temperatureC": 61.589950514051786,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:07:17.574Z",
-    "batterySoC": 77.6035576124544,
-    "systemEfficiency": 0.10347606587718579,
-    "temperatureC": 61.955380165363096,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T16:07:19.573Z",
-    "batterySoC": 77.20535182829028,
-    "systemEfficiency": 0.18460714919785498,
-    "temperatureC": 61.91537852851087,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T16:07:21.575Z",
-    "batterySoC": 76.80540721049285,
-    "systemEfficiency": 0.25039045486956796,
-    "temperatureC": 61.87985882080942,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T16:07:23.576Z",
-    "batterySoC": 76.40376039029452,
-    "systemEfficiency": 0.30515672335862865,
-    "temperatureC": 61.84866111727159,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T16:07:25.576Z",
-    "batterySoC": 76.00045981293856,
-    "systemEfficiency": 0.35172613404448977,
-    "temperatureC": 61.821602812401984,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T16:07:27.577Z",
-    "batterySoC": 75.59556540144834,
-    "systemEfficiency": 0.3920110766251101,
-    "temperatureC": 61.79847975586817,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T16:07:29.579Z",
-    "batterySoC": 75.18914814073608,
-    "systemEfficiency": 0.4273518070822836,
-    "temperatureC": 61.77906754007271,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T16:07:31.579Z",
-    "batterySoC": 74.78128958493726,
-    "systemEfficiency": 0.4587136067589596,
-    "temperatureC": 61.76312293064692,
-    "source": "model"
-  },
-  {
-    "timestamp": "2026-07-31T16:07:33.584Z",
-    "batterySoC": 77.6035576124544,
-    "systemEfficiency": 0.10347606587718579,
-    "temperatureC": 61.955380165363096,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:07:35.583Z",
-    "batterySoC": 76.80540721049285,
-    "systemEfficiency": 0.25039045486956796,
-    "temperatureC": 61.87985882080942,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:07:37.583Z",
-    "batterySoC": 76.00045981293856,
-    "systemEfficiency": 0.35172613404448977,
-    "temperatureC": 61.821602812401984,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:07:39.585Z",
-    "batterySoC": 75.18914814073608,
-    "systemEfficiency": 0.4273518070822836,
-    "temperatureC": 61.77906754007271,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:07:41.586Z",
-    "batterySoC": 74.37208129139009,
-    "systemEfficiency": 0.48680783839880437,
-    "temperatureC": 61.750385429896355,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:07:43.586Z",
-    "batterySoC": 73.55002785871926,
-    "systemEfficiency": 0.5352060599566233,
-    "temperatureC": 61.73341367036495,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:07:45.588Z",
-    "batterySoC": 72.7238946324031,
-    "systemEfficiency": 0.5755073951897235,
-    "temperatureC": 61.72578971991531,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:07:47.588Z",
-    "batterySoC": 71.89470146763277,
-    "systemEfficiency": 0.6095315492661475,
-    "temperatureC": 61.72499304228219,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:07:49.588Z",
-    "batterySoC": 71.0635530213166,
-    "systemEfficiency": 0.6384526593979052,
-    "temperatureC": 61.728411353837124,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:07:51.590Z",
-    "batterySoC": 70.2316081381301,
-    "systemEfficiency": 0.6630624637793056,
-    "temperatureC": 61.73340954220569,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:07:53.590Z",
-    "batterySoC": 69.40004773483142,
-    "systemEfficiency": 0.6839189624393932,
-    "temperatureC": 61.73739934159578,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:07:55.591Z",
-    "batterySoC": 68.57004207288112,
-    "systemEfficiency": 0.701434648318927,
-    "temperatureC": 61.737907829461285,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:07:57.592Z",
-    "batterySoC": 67.7427183263581,
-    "systemEfficiency": 0.7159309603948717,
-    "temperatureC": 61.732642841948994,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:07:59.593Z",
-    "batterySoC": 66.91912934397914,
-    "systemEfficiency": 0.7276729039255131,
-    "temperatureC": 61.719553491120024,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:08:01.594Z",
-    "batterySoC": 66.10022447093722,
-    "systemEfficiency": 0.7368915114862763,
-    "temperatureC": 61.69688410283093,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:08:03.595Z",
-    "batterySoC": 65.28682323918848,
-    "systemEfficiency": 0.7437985537325041,
-    "temperatureC": 61.663220076638105,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:08:05.595Z",
-    "batterySoC": 64.47959265532313,
-    "systemEfficiency": 0.7485961302359417,
-    "temperatureC": 61.61752439309514,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:08:07.596Z",
-    "batterySoC": 63.04853825175915,
-    "systemEfficiency": 0.7476558578414216,
-    "temperatureC": 62.3953175992916,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:08:09.597Z",
-    "batterySoC": 61.00092060609208,
-    "systemEfficiency": 0.7421555156216156,
-    "temperatureC": 63.951503766325466,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:08:11.598Z",
-    "batterySoC": 58.96976729884818,
-    "systemEfficiency": 0.7363309939039281,
-    "temperatureC": 65.43695813786354,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:08:13.600Z",
-    "batterySoC": 56.954895512339505,
-    "systemEfficiency": 0.7302522863671793,
-    "temperatureC": 66.85437402359224,
-    "source": "physical"
-  },
-  {
-    "timestamp": "2026-07-31T16:08:15.601Z",
-    "batterySoC": 54.955671210352854,
-    "systemEfficiency": 0.7239983453713023,
-    "temperatureC": 68.20676555293593,
-    "source": "physical"
-  },
-  {
     "timestamp": "2026-07-31T16:08:17.601Z",
     "batterySoC": 52.97102670953573,
     "systemEfficiency": 0.7176540347225744,
@@ -2036,6 +1046,1056 @@
     "timestamp": "2026-07-31T16:13:15.762Z",
     "batterySoC": 31.130791274108613,
     "systemEfficiency": 0.962534955975612,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:13:17.763Z",
+    "batterySoC": 32.766384792696996,
+    "systemEfficiency": 0.9666394458871561,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:13:19.765Z",
+    "batterySoC": 34.41103286063395,
+    "systemEfficiency": 0.9705178844524536,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:13:21.765Z",
+    "batterySoC": 36.06391382509545,
+    "systemEfficiency": 0.9741907846445821,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:13:23.766Z",
+    "batterySoC": 37.723977870576064,
+    "systemEfficiency": 0.9776843556319027,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:13:25.767Z",
+    "batterySoC": 39.38997611298967,
+    "systemEfficiency": 0.9810297764293072,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:13:27.768Z",
+    "batterySoC": 39.71049521066462,
+    "systemEfficiency": 0.9819929293728031,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:13:29.770Z",
+    "batterySoC": 38.68399653304028,
+    "systemEfficiency": 0.9806306591212902,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:13:31.771Z",
+    "batterySoC": 37.6588588015618,
+    "systemEfficiency": 0.9792531449072265,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:13:33.773Z",
+    "batterySoC": 36.63342302104315,
+    "systemEfficiency": 0.9778941546825801,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:13:35.774Z",
+    "batterySoC": 35.606038456291344,
+    "systemEfficiency": 0.9765867195448413,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:13:37.774Z",
+    "batterySoC": 34.57510837981712,
+    "systemEfficiency": 0.975362227634693,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:13:39.774Z",
+    "batterySoC": 33.539134322801054,
+    "systemEfficiency": 0.9742495666222794,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:13:41.775Z",
+    "batterySoC": 32.49675760296447,
+    "systemEfficiency": 0.9732743390549734,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:13:43.776Z",
+    "batterySoC": 31.446796978460878,
+    "systemEfficiency": 0.9724581730100887,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:13:45.777Z",
+    "batterySoC": 30.388281384265397,
+    "systemEfficiency": 0.9718181478849306,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:13:47.778Z",
+    "batterySoC": 29.32047684382118,
+    "systemEfficiency": 0.9713663518222042,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:13:49.779Z",
+    "batterySoC": 28.242906810125753,
+    "systemEfficiency": 0.9711095833116087,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:13:51.781Z",
+    "batterySoC": 27.155365372533964,
+    "systemEfficiency": 0.971049205067766,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:13:53.781Z",
+    "batterySoC": 26.05792296327023,
+    "systemEfficiency": 0.9711811535313252,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:13:55.781Z",
+    "batterySoC": 24.95092440550248,
+    "systemEfficiency": 0.9714961024661873,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:13:57.782Z",
+    "batterySoC": 23.83497935707259,
+    "systemEfficiency": 0.9719797743322101,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:13:59.784Z",
+    "batterySoC": 22.710945414721298,
+    "systemEfficiency": 0.9726133885957247,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:01.786Z",
+    "batterySoC": 21.579904347049293,
+    "systemEfficiency": 0.9733742320786405,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:03.787Z",
+    "batterySoC": 20.44313211488323,
+    "systemEfficiency": 0.9742363329909497,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:05.788Z",
+    "batterySoC": 19.47335646954104,
+    "systemEfficiency": 0.9758578316022574,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:07.789Z",
+    "batterySoC": 18.672688686610794,
+    "systemEfficiency": 0.9782060986233344,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:09.790Z",
+    "batterySoC": 18.090326633281883,
+    "systemEfficiency": 0.9790057758920967,
+    "temperatureC": 33.065590911433,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:11.791Z",
+    "batterySoC": 17.50823738715041,
+    "systemEfficiency": 0.9797855608522292,
+    "temperatureC": 34.09232448358865,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:13.791Z",
+    "batterySoC": 16.92724004709555,
+    "systemEfficiency": 0.9805121636907088,
+    "temperatureC": 35.079078351492285,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:15.792Z",
+    "batterySoC": 17.698123451417175,
+    "systemEfficiency": 0.9822935707047428,
+    "temperatureC": 35.47486303082812,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:17.793Z",
+    "batterySoC": 19.821624316336514,
+    "systemEfficiency": 0.9850847469654392,
+    "temperatureC": 35.308405927658015,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:19.795Z",
+    "batterySoC": 21.82576665362875,
+    "systemEfficiency": 0.987713076184437,
+    "temperatureC": 35.13783188067634,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:21.795Z",
+    "batterySoC": 23.4069578021692,
+    "systemEfficiency": 0.9925635303308576,
+    "temperatureC": 33.632486016528375,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:23.797Z",
+    "batterySoC": 24.996830070175918,
+    "systemEfficiency": 0.99722154540715,
+    "temperatureC": 32.216106092951556,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:25.797Z",
+    "batterySoC": 26.596079835976063,
+    "systemEfficiency": 1.0016716844183209,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:27.798Z",
+    "batterySoC": 28.205143594265913,
+    "systemEfficiency": 1.0059042713503727,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:29.798Z",
+    "batterySoC": 29.824185859298993,
+    "systemEfficiency": 1.0099156593268754,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:31.799Z",
+    "batterySoC": 31.453094605614254,
+    "systemEfficiency": 1.0137083316768096,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:33.801Z",
+    "batterySoC": 33.09148437265781,
+    "systemEfficiency": 1.0172908331127375,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:35.801Z",
+    "batterySoC": 34.73870694725823,
+    "systemEfficiency": 1.020677532926597,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:37.803Z",
+    "batterySoC": 36.393869327906145,
+    "systemEfficiency": 1.0238882267657987,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:39.803Z",
+    "batterySoC": 38.05585847298451,
+    "systemEfficiency": 1.0269475880258228,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:41.804Z",
+    "batterySoC": 39.72337214708852,
+    "systemEfficiency": 1.0298844840631618,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:43.805Z",
+    "batterySoC": 40.04495501057448,
+    "systemEfficiency": 1.0306182788409832,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:45.806Z",
+    "batterySoC": 39.01903895216874,
+    "systemEfficiency": 1.029199341262805,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:47.807Z",
+    "batterySoC": 37.99398654687726,
+    "systemEfficiency": 1.0277764578764883,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:49.808Z",
+    "batterySoC": 36.968136434823556,
+    "systemEfficiency": 1.0263792623251982,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:51.809Z",
+    "batterySoC": 35.939849363406935,
+    "systemEfficiency": 1.0250365554531697,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:53.811Z",
+    "batterySoC": 34.90755361678986,
+    "systemEfficiency": 1.0237755136647178,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:55.812Z",
+    "batterySoC": 33.869788573702785,
+    "systemEfficiency": 1.022620944789827,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:57.813Z",
+    "batterySoC": 32.82524518642554,
+    "systemEfficiency": 1.0215946125523254,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:14:59.814Z",
+    "batterySoC": 31.772802259129644,
+    "systemEfficiency": 1.0207146489553838,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:01.815Z",
+    "batterySoC": 30.711557520180186,
+    "systemEfficiency": 1.0199950714522905,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:03.815Z",
+    "batterySoC": 29.640852627274093,
+    "systemEfficiency": 1.019445418718669,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:05.817Z",
+    "batterySoC": 28.5602914124338,
+    "systemEfficiency": 1.0190705152804567,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:07.817Z",
+    "batterySoC": 27.469750861223098,
+    "systemEfficiency": 1.0188703713056015,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:09.818Z",
+    "batterySoC": 26.369384521912277,
+    "systemEfficiency": 1.0188402196862698,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:11.818Z",
+    "batterySoC": 25.259618250112446,
+    "systemEfficiency": 1.0189706882874108,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:13.820Z",
+    "batterySoC": 24.141138406810363,
+    "systemEfficiency": 1.0192481010867613,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:15.821Z",
+    "batterySoC": 23.014872836877924,
+    "systemEfficiency": 1.0196548980449522,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:17.822Z",
+    "batterySoC": 21.88196515520908,
+    "systemEfficiency": 1.0201701600703013,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:19.823Z",
+    "batterySoC": 20.743743053106318,
+    "systemEfficiency": 1.0207702225042385,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:21.825Z",
+    "batterySoC": 19.601681503258785,
+    "systemEfficiency": 1.0214293582418845,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:23.826Z",
+    "batterySoC": 18.800657769100226,
+    "systemEfficiency": 1.023408770844562,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:25.827Z",
+    "batterySoC": 18.21829075478123,
+    "systemEfficiency": 1.023905929107139,
+    "temperatureC": 33.06560437096916,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:27.828Z",
+    "batterySoC": 17.636444845029633,
+    "systemEfficiency": 1.0243790657841887,
+    "temperatureC": 34.09159044960595,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:29.829Z",
+    "batterySoC": 17.055932395012885,
+    "systemEfficiency": 1.0247987376101049,
+    "temperatureC": 35.076883721078524,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:31.830Z",
+    "batterySoC": 19.177528805012894,
+    "systemEfficiency": 1.0272770841450343,
+    "temperatureC": 34.93046134576901,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:33.831Z",
+    "batterySoC": 21.178782307114666,
+    "systemEfficiency": 1.029628552241466,
+    "temperatureC": 34.780602964168075,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:35.832Z",
+    "batterySoC": 23.061477572264263,
+    "systemEfficiency": 1.031828584268164,
+    "temperatureC": 34.62547570519391,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:37.833Z",
+    "batterySoC": 24.64519274607448,
+    "systemEfficiency": 1.0361412126402376,
+    "temperatureC": 33.15041009101695,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:39.834Z",
+    "batterySoC": 26.2378248902625,
+    "systemEfficiency": 1.0402760403772795,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:41.835Z",
+    "batterySoC": 27.839993897225174,
+    "systemEfficiency": 1.0442207070858895,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:43.836Z",
+    "batterySoC": 29.452055359161164,
+    "systemEfficiency": 1.0479681224073403,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:45.836Z",
+    "batterySoC": 31.074090713353467,
+    "systemEfficiency": 1.0515166625164964,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:47.837Z",
+    "batterySoC": 32.70590498525425,
+    "systemEfficiency": 1.054870215123752,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:49.838Z",
+    "batterySoC": 34.34703219191918,
+    "systemEfficiency": 1.0580380717328244,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:51.840Z",
+    "batterySoC": 35.996748256042935,
+    "systemEfficiency": 1.0610346701403248,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:53.841Z",
+    "batterySoC": 37.65409107270229,
+    "systemEfficiency": 1.0638791943133483,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:55.842Z",
+    "batterySoC": 39.317887172686405,
+    "systemEfficiency": 1.0665950427338944,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:57.842Z",
+    "batterySoC": 40.98678424347905,
+    "systemEfficiency": 1.069209179944174,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:15:59.843Z",
+    "batterySoC": 39.959288606621406,
+    "systemEfficiency": 1.0678134965381343,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:01.844Z",
+    "batterySoC": 38.9338066128251,
+    "systemEfficiency": 1.0663958252127144,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:03.845Z",
+    "batterySoC": 37.90868880763054,
+    "systemEfficiency": 1.0649826699915956,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:05.846Z",
+    "batterySoC": 36.88227564362387,
+    "systemEfficiency": 1.0636003435453383,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:07.847Z",
+    "batterySoC": 35.85294347236546,
+    "systemEfficiency": 1.0622742411451038,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:09.848Z",
+    "batterySoC": 34.81914954143077,
+    "systemEfficiency": 1.0610281418593108,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:11.849Z",
+    "batterySoC": 33.77947474953657,
+    "systemEfficiency": 1.0598835566287583,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:13.850Z",
+    "batterySoC": 32.7326629748567,
+    "systemEfficiency": 1.058859141719292,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:15.850Z",
+    "batterySoC": 31.6776558866006,
+    "systemEfficiency": 1.057970194310057,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:17.851Z",
+    "batterySoC": 30.61362227510268,
+    "systemEfficiency": 1.057228244661967,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:19.852Z",
+    "batterySoC": 29.539981087582074,
+    "systemEfficiency": 1.0566407564867908,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:21.853Z",
+    "batterySoC": 28.45641753117029,
+    "systemEfficiency": 1.056210943892191,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:23.854Z",
+    "batterySoC": 27.36289179693497,
+    "systemEfficiency": 1.0559377097265163,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:25.855Z",
+    "batterySoC": 26.259640163126235,
+    "systemEfficiency": 1.0558157064222409,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:27.856Z",
+    "batterySoC": 25.14716844707065,
+    "systemEfficiency": 1.0558355166825586,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:29.857Z",
+    "batterySoC": 24.02623798718412,
+    "systemEfficiency": 1.055983947717904,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:31.858Z",
+    "batterySoC": 22.897844543591614,
+    "systemEfficiency": 1.0562444293574351,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:33.859Z",
+    "batterySoC": 21.763190702092228,
+    "systemEfficiency": 1.0565975033589758,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:35.860Z",
+    "batterySoC": 20.623652546253304,
+    "systemEfficiency": 1.057021388721776,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:37.861Z",
+    "batterySoC": 19.480741521267728,
+    "systemEfficiency": 1.0574926058447847,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:39.862Z",
+    "batterySoC": 18.67946623890362,
+    "systemEfficiency": 1.0591939661691796,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:41.863Z",
+    "batterySoC": 18.097169274345333,
+    "systemEfficiency": 1.0594840786589408,
+    "temperatureC": 33.06538808621487,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:43.864Z",
+    "batterySoC": 17.515640401512478,
+    "systemEfficiency": 1.0597460892272095,
+    "temperatureC": 34.09040915077827,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:45.865Z",
+    "batterySoC": 16.93568318935816,
+    "systemEfficiency": 1.0599537491485702,
+    "temperatureC": 35.07404234832118,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:47.866Z",
+    "batterySoC": 19.058057650559316,
+    "systemEfficiency": 1.0620859407466232,
+    "temperatureC": 34.92533681066098,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:49.867Z",
+    "batterySoC": 21.060510411955274,
+    "systemEfficiency": 1.0640974403341223,
+    "temperatureC": 34.77266049138323,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:51.868Z",
+    "batterySoC": 22.944853409755577,
+    "systemEfficiency": 1.0659669136640113,
+    "temperatureC": 34.61428275973993,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:53.869Z",
+    "batterySoC": 24.531171268197177,
+    "systemEfficiency": 1.069831616204892,
+    "temperatureC": 33.13987864863931,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:55.870Z",
+    "batterySoC": 26.12661952801141,
+    "systemEfficiency": 1.0735311842842459,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:57.872Z",
+    "batterySoC": 27.73174003707087,
+    "systemEfficiency": 1.0770558179214353,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:16:59.872Z",
+    "batterySoC": 29.34680659101204,
+    "systemEfficiency": 1.0804005651879356,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:01.874Z",
+    "batterySoC": 30.971817345389812,
+    "systemEfficiency": 1.0835654594427893,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:03.875Z",
+    "batterySoC": 32.6064948667936,
+    "systemEfficiency": 1.086555518408109,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:05.875Z",
+    "batterySoC": 34.25029382150838,
+    "systemEfficiency": 1.0893806051102515,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:07.876Z",
+    "batterySoC": 35.90241608864074,
+    "systemEfficiency": 1.0920551545404713,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:09.877Z",
+    "batterySoC": 37.56183287887166,
+    "systemEfficiency": 1.0945977736102601,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:11.879Z",
+    "batterySoC": 39.22731324584723,
+    "systemEfficiency": 1.097030725488018,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:13.880Z",
+    "batterySoC": 39.54745820005586,
+    "systemEfficiency": 1.0975411931646912,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:15.879Z",
+    "batterySoC": 38.520739479775656,
+    "systemEfficiency": 1.096171393710094,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:17.881Z",
+    "batterySoC": 37.49554190461204,
+    "systemEfficiency": 1.0947887683510111,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:19.880Z",
+    "batterySoC": 36.470208137859146,
+    "systemEfficiency": 1.0934172210270057,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:21.882Z",
+    "batterySoC": 35.44308461716174,
+    "systemEfficiency": 1.0920803162261634,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:23.884Z",
+    "batterySoC": 34.41256738057651,
+    "systemEfficiency": 1.0908006284849532,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:25.884Z",
+    "batterySoC": 33.37714651803057,
+    "systemEfficiency": 1.0895991208470586,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:27.886Z",
+    "batterySoC": 32.33544801626989,
+    "systemEfficiency": 1.088494569779572,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:29.887Z",
+    "batterySoC": 31.286271837626316,
+    "systemEfficiency": 1.0875030528727665,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:31.889Z",
+    "batterySoC": 30.22862517730571,
+    "systemEfficiency": 1.0866375139451177,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:33.890Z",
+    "batterySoC": 29.161749977520234,
+    "systemEfficiency": 1.0859074179750887,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:35.892Z",
+    "batterySoC": 28.085143935950807,
+    "systemEfficiency": 1.0853185056472154,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:37.892Z",
+    "batterySoC": 26.998574426320946,
+    "systemEfficiency": 1.0848726543175804,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:39.892Z",
+    "batterySoC": 25.90208494529365,
+    "systemEfficiency": 1.0845678489779227,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:41.892Z",
+    "batterySoC": 24.795993907025036,
+    "systemEfficiency": 1.0843982634477458,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:43.893Z",
+    "batterySoC": 23.68088581878187,
+    "systemEfficiency": 1.0843544486768824,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:45.894Z",
+    "batterySoC": 22.557595082177897,
+    "systemEfficiency": 1.0844236218240146,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:47.896Z",
+    "batterySoC": 21.427182868953924,
+    "systemEfficiency": 1.0845900468092997,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:49.896Z",
+    "batterySoC": 20.290907712155672,
+    "systemEfficiency": 1.0848354944268594,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:51.898Z",
+    "batterySoC": 19.32143652974632,
+    "systemEfficiency": 1.0857064634775755,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:53.898Z",
+    "batterySoC": 18.739726004446368,
+    "systemEfficiency": 1.0858475698251584,
+    "temperatureC": 33.06360165791365,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:55.900Z",
+    "batterySoC": 18.157381616834023,
+    "systemEfficiency": 1.0860068571033432,
+    "temperatureC": 34.091193970283996,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:57.900Z",
+    "batterySoC": 17.5752295366613,
+    "systemEfficiency": 1.0861590283530378,
+    "temperatureC": 35.08153113517445,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:17:59.901Z",
+    "batterySoC": 16.994090604160903,
+    "systemEfficiency": 1.086279353668154,
+    "temperatureC": 36.03342827889635,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:18:01.902Z",
+    "batterySoC": 17.764757581660152,
+    "systemEfficiency": 1.08728481780179,
+    "temperatureC": 36.395828953841075,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:18:03.902Z",
+    "batterySoC": 19.88797318333301,
+    "systemEfficiency": 1.0891409659902862,
+    "temperatureC": 36.19738964061285,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:18:05.904Z",
+    "batterySoC": 21.89169211929978,
+    "systemEfficiency": 1.0908817713858674,
+    "temperatureC": 35.99616094114303,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:18:07.905Z",
+    "batterySoC": 23.77774903528673,
+    "systemEfficiency": 1.0924886761796901,
+    "temperatureC": 35.79045794641156,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:18:09.907Z",
+    "batterySoC": 25.36674169379775,
+    "systemEfficiency": 1.095972076659884,
+    "temperatureC": 34.24654188177864,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:18:11.907Z",
+    "batterySoC": 26.9650552281305,
+    "systemEfficiency": 1.0993016040895756,
+    "temperatureC": 32.793871256565524,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:18:13.909Z",
+    "batterySoC": 28.573152079266542,
+    "systemEfficiency": 1.1024696242929783,
+    "temperatureC": 32,
+    "source": "physical"
+  },
+  {
+    "timestamp": "2026-07-31T16:18:15.909Z",
+    "batterySoC": 30.191223557876473,
+    "systemEfficiency": 1.1054729790307765,
     "temperatureC": 32,
     "source": "physical"
   }

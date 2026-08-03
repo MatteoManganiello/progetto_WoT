@@ -1,9 +1,9 @@
 /**
- * Dashboard: consumer WoT lato browser.
+ * Predictive Dashboard: consumer WoT lato browser.
  *
- * Non contiene URL di proprieta' o di azioni. Scarica le tre Thing Description
- * e ricava da esse le `forms` di ogni interazione, compreso il sottoprotocollo
- * degli eventi. Cambiare il binding lato server non richiede modifiche qui.
+ * Non contiene URL di proprieta' o di azioni. Scarica le Thing Description di
+ * PowerUnit e ControlActuator e ricava da esse le `forms` di ogni interazione.
+ * Cambiare il binding lato server non richiede modifiche qui.
  */
 
 const params = new URLSearchParams(window.location.search);
@@ -14,14 +14,7 @@ const BASE_URL = `${apiProtocol}//${apiHost}:${apiPort}`;
 
 const TD_URLS = {
   powerUnit: `${BASE_URL}/powerunit`,
-  energyStorage: `${BASE_URL}/energystorage`,
   controlActuator: `${BASE_URL}/controlactuator`
-};
-
-const DEVICE_LABELS = {
-  powerunit: "Gruppo propulsore",
-  battery: "Pacco batteria",
-  actuator: "Centralina"
 };
 
 const els = {
@@ -29,18 +22,11 @@ const els = {
   batterySoC: document.getElementById("batterySoC"),
   batteryCard: document.getElementById("batteryCard"),
   rangeHint: document.getElementById("rangeHint"),
-  engineStatus: document.getElementById("engineStatus"),
   engineRPM: document.getElementById("engineRPM"),
-  thermalHealth: document.getElementById("thermalHealth"),
+  torqueNm: document.getElementById("torqueNm"),
   temperatureC: document.getElementById("temperatureC"),
   systemEfficiency: document.getElementById("systemEfficiency"),
-  torqueNm: document.getElementById("torqueNm"),
-  alertsList: document.getElementById("alertsList"),
-  eventLog: document.getElementById("eventLog"),
-  controlModeLabel: document.getElementById("controlModeLabel"),
-  commandTargetLabel: document.getElementById("commandTargetLabel"),
-  twinDevices: document.getElementById("twinDevices"),
-  twinSummary: document.getElementById("twinSummary")
+  alertsList: document.getElementById("alertsList")
 };
 
 let pendingDriveMode = null;
@@ -112,40 +98,7 @@ const consumeThing = async (tdUrl) => {
     });
   };
 
-  /**
-   * Sottoscrizione eventi. Il binding HTTP di node-wot dichiara
-   * `subprotocol: "longpoll"`: la richiesta resta appesa finche' l'evento non
-   * si verifica, poi viene riemessa.
-   */
-  const subscribeEvent = (name, handler) => {
-    const form = pickForm(td.events?.[name]?.forms, "subscribeevent", "subscribeevent");
-    if (!form) {
-      return () => {};
-    }
-    const href = alignOrigin(form.href);
-    let active = true;
-
-    const poll = async () => {
-      while (active) {
-        try {
-          const data = await fetchJson(href);
-          if (active) {
-            handler(data);
-          }
-        } catch {
-          // Il long-poll scade o il server si riavvia: si riprova con una pausa.
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-        }
-      }
-    };
-
-    void poll();
-    return () => {
-      active = false;
-    };
-  };
-
-  return { td, readProperty, invokeAction, subscribeEvent };
+  return { td, readProperty, invokeAction };
 };
 
 // ---------------------------------------------------------------------------
@@ -270,54 +223,16 @@ const setButtonsDisabled = (containerId, disabled) => {
   });
 };
 
-const renderTwinStatus = (statuses) => {
-  els.twinDevices.innerHTML = "";
-  let liveCount = 0;
-
-  statuses.forEach((status) => {
-    if (status.live) {
-      liveCount += 1;
-    }
-    const item = document.createElement("div");
-    item.className = `twin-device ${status.live ? "is-physical" : "is-model"}`;
-
-    const title = document.createElement("p");
-    title.className = "twin-device-name";
-    title.textContent = DEVICE_LABELS[status.deviceId] ?? status.deviceId;
-
-    const badge = document.createElement("span");
-    badge.className = "twin-badge";
-    badge.textContent = status.live ? "Fisico" : "Modello";
-
-    const detail = document.createElement("p");
-    detail.className = "twin-device-detail";
-    detail.textContent = status.live
-      ? `misura reale, ${Math.round(status.ageMs ?? 0)} ms fa`
-      : status.samples > 0
-        ? "dispositivo scollegato, valori ricostruiti"
-        : "dispositivo mai visto, valori ricostruiti";
-
-    item.append(title, badge, detail);
-    els.twinDevices.appendChild(item);
-  });
-
-  els.twinSummary.textContent =
-    liveCount === 0
-      ? "Nessuna parte fisica collegata: il gemello lavora interamente sul modello."
-      : liveCount === statuses.length
-        ? "Tutte le parti fisiche sono collegate: il gemello rispecchia il sistema reale."
-        : `${liveCount} di ${statuses.length} parti fisiche collegate: il resto e' coperto dal modello.`;
-};
-
-const renderAlerts = ({ batterySoC, temperatureC, systemEfficiency }) => {
+/** Le stesse soglie del Diagnostic Tool, applicate alle proprieta' lette. */
+const renderAlerts = ({ temperatureC, estimatedRangeKm, systemEfficiency }) => {
   const alerts = [];
   if (temperatureC > 90) {
     alerts.push("Surriscaldamento critico rilevato");
   }
-  if (batterySoC < 12) {
-    alerts.push("Avviso batteria bassa");
+  if (estimatedRangeKm < 10) {
+    alerts.push("Autonomia residua bassa");
   }
-  if (systemEfficiency < 2) {
+  if (systemEfficiency < 1.2) {
     alerts.push("Anomalia efficienza rilevata");
   }
 
@@ -337,34 +252,6 @@ const renderAlerts = ({ batterySoC, temperatureC, systemEfficiency }) => {
   });
 };
 
-const eventEntries = [];
-
-const logEvent = (name, data) => {
-  const time = new Date().toLocaleTimeString();
-  let detail = "";
-  if (name === "physicalLinkChanged") {
-    detail = (data.changes ?? [])
-      .map((change) => `${DEVICE_LABELS[change.deviceId] ?? change.deviceId} ${change.live ? "collegato" : "scollegato"}`)
-      .join(", ");
-  } else if (name === "criticalOverheat") {
-    detail = `${data.temperatureC?.toFixed?.(1)} C (${data.source})`;
-  } else if (name === "lowEnergyWarning") {
-    detail = `${data.estimatedRangeKm?.toFixed?.(1)} km (${data.source})`;
-  } else if (name === "anomalyDetected") {
-    detail = `${data.systemEfficiency?.toFixed?.(2)} km/kWh (${data.source})`;
-  }
-
-  eventEntries.unshift(`${time} — ${name}${detail ? `: ${detail}` : ""}`);
-  eventEntries.splice(8);
-
-  els.eventLog.innerHTML = "";
-  eventEntries.forEach((entry) => {
-    const li = document.createElement("li");
-    li.textContent = entry;
-    els.eventLog.appendChild(li);
-  });
-};
-
 // ---------------------------------------------------------------------------
 // Ciclo principale
 // ---------------------------------------------------------------------------
@@ -377,26 +264,17 @@ const updateDashboard = async () => {
   }
   try {
     const [
-      batterySoC, engineStatus, engineRPM, thermalHealth, temperatureC,
-      systemEfficiency, torqueNm, estimatedRangeKm,
-      driveMode, controlMode, regenIntensity, commandTarget,
-      powerStatus, batteryStatus, actuatorStatus
+      batterySoC, engineRPM, torqueNm, temperatureC, systemEfficiency, estimatedRangeKm,
+      driveMode, regenIntensity
     ] = await Promise.all([
       things.powerUnit.readProperty("batterySoC"),
-      things.powerUnit.readProperty("engineStatus"),
       things.powerUnit.readProperty("engineRPM"),
-      things.powerUnit.readProperty("thermalHealth"),
+      things.powerUnit.readProperty("torqueNm"),
       things.powerUnit.readProperty("temperatureC"),
       things.powerUnit.readProperty("systemEfficiency"),
-      things.powerUnit.readProperty("torqueNm"),
       things.powerUnit.readProperty("estimatedRangeKm"),
       things.controlActuator.readProperty("driveMode"),
-      things.controlActuator.readProperty("controlMode"),
-      things.controlActuator.readProperty("regenIntensity"),
-      things.controlActuator.readProperty("commandTarget"),
-      things.powerUnit.readProperty("twinStatus"),
-      things.energyStorage.readProperty("twinStatus"),
-      things.controlActuator.readProperty("twinStatus")
+      things.controlActuator.readProperty("regenIntensity")
     ]);
 
     setStatus("Online", true);
@@ -413,14 +291,10 @@ const updateDashboard = async () => {
         els.batteryCard.classList.add("battery-high");
       }
     }
-    els.engineStatus.textContent = engineStatus;
     els.engineRPM.textContent = `${engineRPM.toFixed(0)} rpm`;
-    els.thermalHealth.textContent = `${thermalHealth.toFixed(0)}%`;
-    els.temperatureC.textContent = temperatureC.toFixed(1);
-    els.systemEfficiency.textContent = `${systemEfficiency.toFixed(2)} km/kWh`;
     els.torqueNm.textContent = torqueNm.toFixed(0);
-
-    renderTwinStatus([powerStatus, batteryStatus, actuatorStatus]);
+    els.temperatureC.textContent = `${temperatureC.toFixed(1)} C`;
+    els.systemEfficiency.textContent = `${systemEfficiency.toFixed(2)} km/kWh`;
 
     const timestamp = new Date().toLocaleTimeString();
     socChart.data.labels.push(timestamp);
@@ -438,6 +312,8 @@ const updateDashboard = async () => {
     socChart.update();
     effChart.update();
 
+    // Finestra di grazia: il comando appena inviato resta evidenziato finche'
+    // il ciclo di simulazione non ha ancora propagato il nuovo stato.
     const now = Date.now();
     const backendRegen = String(Math.round(regenIntensity));
     const effectiveDrive = pendingDriveMode && now < pendingDriveUntil ? pendingDriveMode : driveMode;
@@ -445,12 +321,8 @@ const updateDashboard = async () => {
 
     setActive("driveModeButtons", (btn) => btn.dataset.mode === effectiveDrive);
     setActive("regenButtons", (btn) => btn.dataset.regen === effectiveRegen);
-    setActive("controlModeButtons", (btn) => btn.dataset.control === controlMode);
 
-    els.controlModeLabel.textContent = controlMode === "Auto" ? "Automatico" : "Manuale";
-    els.commandTargetLabel.textContent = commandTarget === "physical" ? "attuatore reale" : "modello";
-
-    renderAlerts({ batterySoC, temperatureC, systemEfficiency });
+    renderAlerts({ temperatureC, estimatedRangeKm, systemEfficiency });
   } catch (error) {
     setStatus("Offline", false);
   }
@@ -508,25 +380,17 @@ const wireControls = () => {
     pendingRegen = value;
     pendingRegenUntil = value ? Date.now() + 6000 : 0;
   });
-
-  bindAction("controlModeButtons", "control", "setControlMode", (value) => value, null);
 };
 
 const start = async () => {
   try {
-    const [powerUnit, energyStorage, controlActuator] = await Promise.all([
+    const [powerUnit, controlActuator] = await Promise.all([
       consumeThing(TD_URLS.powerUnit),
-      consumeThing(TD_URLS.energyStorage),
       consumeThing(TD_URLS.controlActuator)
     ]);
-    things = { powerUnit, energyStorage, controlActuator };
+    things = { powerUnit, controlActuator };
 
     console.log("Thing Description consumate:", Object.keys(things));
-
-    // Le sottoscrizioni derivano dalla TD: se il server cambia binding, qui non cambia nulla.
-    Object.keys(powerUnit.td.events ?? {}).forEach((eventName) => {
-      powerUnit.subscribeEvent(eventName, (data) => logEvent(eventName, data));
-    });
 
     wireControls();
     await loadHistory();

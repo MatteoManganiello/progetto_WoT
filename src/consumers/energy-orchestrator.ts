@@ -8,18 +8,12 @@ type OrchestratorConfig = {
 
 type DriveMode = "Full Electric" | "Hybrid" | "Sport" | "Save";
 
-type Snapshot = {
-  batterySoC: number;
-  speedKmh: number;
-  controlMode: string;
-  driveMode: DriveMode;
-};
-
 /**
- * Regole di efficienza. Restano una funzione pura, cosi' sono verificabili
- * dai test senza avviare ne' broker ne' servient.
+ * Regole a soglia per la gestione automatica della coppia: dalla modalita' di
+ * guida discendono coppia richiesta e ripartizione fra i due motori.
+ * Funzione pura, cosi' e' verificabile dai test senza avviare un servient.
  */
-export const computeDriveMode = (snapshot: Pick<Snapshot, "batterySoC" | "speedKmh">): DriveMode => {
+export const computeDriveMode = (snapshot: { batterySoC: number; speedKmh: number }): DriveMode => {
   if (snapshot.batterySoC < 15) {
     return "Save";
   }
@@ -33,10 +27,12 @@ export const computeDriveMode = (snapshot: Pick<Snapshot, "batterySoC" | "speedK
 };
 
 /**
- * ENERGY ORCHESTRATOR — consumer WoT.
+ * ENERGY ORCHESTRATOR — consumer WoT di riferimento.
  *
- * Legge lo stato dalle Thing consumate e agisce con `invokeAction`. Interviene
- * solo quando l'utente ha ceduto il controllo (`controlMode === "Auto"`).
+ * Incluso a scopo architetturale: mostra come un consumer possa chiudere l'anello
+ * di controllo leggendo le proprieta' e agendo con `invokeAction`, senza conoscere
+ * ne' URL ne' protocollo. Non viene avviato dal runtime: il controllo della
+ * modalita' di guida resta manuale, dalla dashboard.
  */
 export const startEnergyOrchestrator = async (config: OrchestratorConfig) => {
   const intervalMs = config.intervalMs ?? 4000;
@@ -45,36 +41,26 @@ export const startEnergyOrchestrator = async (config: OrchestratorConfig) => {
   const powerUnit = await consumeThing(wot, config.powerUnitTd);
   const controlActuator = await consumeThing(wot, config.controlActuatorTd);
 
-  console.log("[Orchestrator] TD consumate, in attesa di controlMode=Auto");
-
   let lastAppliedMode: DriveMode | undefined;
 
   const tick = async () => {
     try {
-      const [batterySoC, speedKmh, controlMode, driveMode] = await Promise.all([
+      const [batterySoC, driveMode] = await Promise.all([
         readValue<number>(powerUnit, "batterySoC"),
-        readValue<number>(powerUnit, "speedKmh"),
-        readValue<string>(controlActuator, "controlMode"),
         readValue<DriveMode>(controlActuator, "driveMode")
       ]);
-
-      if (controlMode !== "Auto") {
-        lastAppliedMode = undefined;
-        return;
-      }
+      // La velocita' non e' esposta: si usa il regime motore come proxy della domanda.
+      const engineRPM = await readValue<number>(powerUnit, "engineRPM");
+      const speedKmh = Math.max(0, (engineRPM - 900) / 22);
 
       const target = computeDriveMode({ batterySoC, speedKmh });
       if (target === driveMode || target === lastAppliedMode) {
         return;
       }
 
-      const output = await controlActuator.invokeAction("setDriveMode", target);
-      const result = (await output?.value()) as { target?: string } | undefined;
+      await controlActuator.invokeAction("setDriveMode", target);
       lastAppliedMode = target;
-      console.log(
-        `[Orchestrator] SoC ${batterySoC.toFixed(1)}% @ ${speedKmh.toFixed(0)} km/h -> ${target}` +
-        (result?.target ? ` (applicato su: ${result.target})` : "")
-      );
+      console.log(`[Orchestrator] SoC ${batterySoC.toFixed(1)}% @ ${speedKmh.toFixed(0)} km/h -> ${target}`);
     } catch (error) {
       console.warn("[Orchestrator] ciclo fallito", error);
     }

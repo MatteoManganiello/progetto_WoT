@@ -1,14 +1,18 @@
 import { summary } from "./harness";
 import { run as runSimState } from "./sim-state.test";
-import { run as runProtocol } from "./protocol.test";
-import { run as runShadow } from "./shadow.test";
-import { run as runRegistry } from "./twin-registry.test";
+import { run as runModeSweep } from "./mode-sweep.test";
+import { run as runDiagnostic } from "./diagnostic-rules.test";
 import { run as runOrchestrator } from "./orchestrator-rules.test";
+import { run as runWotHttp } from "./wot-http.test";
 
-runSimState();
-runProtocol();
-runShadow();
-runRegistry();
-runOrchestrator();
+const main = async () => {
+  runSimState();
+  runModeSweep();
+  runDiagnostic();
+  runOrchestrator();
+  await runWotHttp();
 
-summary();
+  summary();
+};
+
+void main();

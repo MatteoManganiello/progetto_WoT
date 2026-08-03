@@ -20,6 +20,18 @@ export const test = (name: string, fn: () => void) => {
   }
 };
 
+/** Variante asincrona: serve alle verifiche end-to-end, che passano dalla rete. */
+export const testAsync = async (name: string, fn: () => Promise<void>) => {
+  try {
+    await fn();
+    passed += 1;
+    console.log(`  ok    ${name}`);
+  } catch (error) {
+    failures.push({ suite: currentSuite, name, error });
+    console.log(`  FAIL  ${name}`);
+  }
+};
+
 export const summary = () => {
   console.log(`\n${passed} test superati, ${failures.length} falliti`);
   for (const failure of failures) {
@@ -31,13 +43,3 @@ export const summary = () => {
   }
 };
 
-/** Orologio pilotabile: permette di testare la scadenza delle misure senza attese. */
-export const createClock = (start = 1_700_000_000_000) => {
-  let current = start;
-  return {
-    now: () => current,
-    advance: (ms: number) => {
-      current += ms;
-    }
-  };
-};

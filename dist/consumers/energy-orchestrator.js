@@ -3,8 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.startEnergyOrchestrator = exports.computeDriveMode = void 0;
 const wot_client_1 = require("./wot-client");
 /**
- * Regole di efficienza. Restano una funzione pura, cosi' sono verificabili
- * dai test senza avviare ne' broker ne' servient.
+ * Regole a soglia per la gestione automatica della coppia: dalla modalita' di
+ * guida discendono coppia richiesta e ripartizione fra i due motori.
+ * Funzione pura, cosi' e' verificabile dai test senza avviare un servient.
  */
 const computeDriveMode = (snapshot) => {
     if (snapshot.batterySoC < 15) {
@@ -20,39 +21,35 @@ const computeDriveMode = (snapshot) => {
 };
 exports.computeDriveMode = computeDriveMode;
 /**
- * ENERGY ORCHESTRATOR — consumer WoT.
+ * ENERGY ORCHESTRATOR — consumer WoT di riferimento.
  *
- * Legge lo stato dalle Thing consumate e agisce con `invokeAction`. Interviene
- * solo quando l'utente ha ceduto il controllo (`controlMode === "Auto"`).
+ * Incluso a scopo architetturale: mostra come un consumer possa chiudere l'anello
+ * di controllo leggendo le proprieta' e agendo con `invokeAction`, senza conoscere
+ * ne' URL ne' protocollo. Non viene avviato dal runtime: il controllo della
+ * modalita' di guida resta manuale, dalla dashboard.
  */
 const startEnergyOrchestrator = async (config) => {
     const intervalMs = config.intervalMs ?? 4000;
     const { wot, servient } = await (0, wot_client_1.createConsumerServient)();
     const powerUnit = await (0, wot_client_1.consumeThing)(wot, config.powerUnitTd);
     const controlActuator = await (0, wot_client_1.consumeThing)(wot, config.controlActuatorTd);
-    console.log("[Orchestrator] TD consumate, in attesa di controlMode=Auto");
     let lastAppliedMode;
     const tick = async () => {
         try {
-            const [batterySoC, speedKmh, controlMode, driveMode] = await Promise.all([
+            const [batterySoC, driveMode] = await Promise.all([
                 (0, wot_client_1.readValue)(powerUnit, "batterySoC"),
-                (0, wot_client_1.readValue)(powerUnit, "speedKmh"),
-                (0, wot_client_1.readValue)(controlActuator, "controlMode"),
                 (0, wot_client_1.readValue)(controlActuator, "driveMode")
             ]);
-            if (controlMode !== "Auto") {
-                lastAppliedMode = undefined;
-                return;
-            }
+            // La velocita' non e' esposta: si usa il regime motore come proxy della domanda.
+            const engineRPM = await (0, wot_client_1.readValue)(powerUnit, "engineRPM");
+            const speedKmh = Math.max(0, (engineRPM - 900) / 22);
             const target = (0, exports.computeDriveMode)({ batterySoC, speedKmh });
             if (target === driveMode || target === lastAppliedMode) {
                 return;
             }
-            const output = await controlActuator.invokeAction("setDriveMode", target);
-            const result = (await output?.value());
+            await controlActuator.invokeAction("setDriveMode", target);
             lastAppliedMode = target;
-            console.log(`[Orchestrator] SoC ${batterySoC.toFixed(1)}% @ ${speedKmh.toFixed(0)} km/h -> ${target}` +
-                (result?.target ? ` (applicato su: ${result.target})` : ""));
+            console.log(`[Orchestrator] SoC ${batterySoC.toFixed(1)}% @ ${speedKmh.toFixed(0)} km/h -> ${target}`);
         }
         catch (error) {
             console.warn("[Orchestrator] ciclo fallito", error);

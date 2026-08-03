@@ -1,4 +1,4 @@
-import { consumeThing, createConsumerServient, describeForms, readValue } from "./wot-client";
+import { consumeThing, createConsumerServient, readValue } from "./wot-client";
 
 type DiagnosticConfig = {
   /** URL delle Thing Description, non degli endpoint: e' la TD a dire dove andare. */
@@ -7,21 +7,37 @@ type DiagnosticConfig = {
   intervalMs?: number;
 };
 
-type TwinStatus = {
-  deviceId: string;
-  source: "physical" | "model";
-  live: boolean;
-  samples: number;
-  ageMs?: number;
+/** Soglie diagnostiche applicate alle proprieta' lette. */
+export const DIAGNOSTIC_THRESHOLDS = {
+  /** Oltre questa temperatura il gruppo propulsore e' in surriscaldamento. */
+  overheatC: 90,
+  /** Sotto questo stato di salute il pacco batteria e' considerato degradato. */
+  degradedSoH: 85,
+  /** Sotto questa autonomia residua scatta l'avviso di bassa energia. */
+  lowRangeKm: 10
 };
+
+export type DiagnosticReading = {
+  temperatureC: number;
+  batterySoH: number;
+  estimatedRangeKm: number;
+};
+
+/**
+ * Regole diagnostiche a soglia. Funzione pura, verificabile senza servient.
+ */
+export const evaluateRisks = (reading: DiagnosticReading) => ({
+  overheat: reading.temperatureC > DIAGNOSTIC_THRESHOLDS.overheatC,
+  degradedBattery: reading.batterySoH < DIAGNOSTIC_THRESHOLDS.degradedSoH,
+  lowRange: reading.estimatedRangeKm < DIAGNOSTIC_THRESHOLDS.lowRangeKm
+});
 
 /**
  * DIAGNOSTIC TOOL — consumer WoT.
  *
- * Non conosce URL di proprieta' ne' topic MQTT. Consuma le Thing Description e
- * usa `subscribeEvent` / `readProperty`: e' node-wot a risolvere le form e a
- * scegliere il binding. Sottoscrive anche `physicalLinkChanged`, cosi' la
- * diagnosi distingue un guasto reale da un dato prodotto dal modello.
+ * Non conosce gli URL delle proprieta': consuma le due Thing Description e legge
+ * periodicamente via `readProperty`, lasciando a node-wot la risoluzione delle
+ * form. Applica poi le soglie diagnostiche e segnala i rischi.
  */
 export const startDiagnosticTool = async (config: DiagnosticConfig) => {
   const intervalMs = config.intervalMs ?? 6000;
@@ -30,92 +46,34 @@ export const startDiagnosticTool = async (config: DiagnosticConfig) => {
   const powerUnit = await consumeThing(wot, config.powerUnitTd);
   const energyStorage = await consumeThing(wot, config.energyStorageTd);
 
-  const powerUnitTd = powerUnit.getThingDescription();
-  console.log(
-    `[Diagnostic] TD consumate. Eventi PowerUnit via: ${describeForms(powerUnitTd, "events").join(", ") || "n/d"}`
-  );
-  console.log(
-    `[Diagnostic] Proprieta' PowerUnit via: ${describeForms(powerUnitTd, "properties").join(", ") || "n/d"}`
-  );
+  console.log("[Diagnostic] Thing Description consumate, monitoraggio a soglie avviato");
 
-  const subscriptions: WoT.Subscription[] = [];
-
-  // Gli eventi arrivano per sottoscrizione, non per polling.
-  const subscribe = async (name: string, format: (data: unknown) => string) => {
-    try {
-      const subscription = await powerUnit.subscribeEvent(name, async (output) => {
-        try {
-          const data = await output.value();
-          console.warn(`[Diagnostic] ${format(data)}`);
-        } catch (error) {
-          console.warn(`[Diagnostic] evento ${name} non leggibile`, error);
-        }
-      });
-      subscriptions.push(subscription);
-      console.log(`[Diagnostic] sottoscritto evento '${name}'`);
-    } catch (error) {
-      console.warn(`[Diagnostic] sottoscrizione a '${name}' fallita`, error);
-    }
-  };
-
-  await subscribe("criticalOverheat", (data) => {
-    const payload = data as { temperatureC?: number; source?: string };
-    return `SURRISCALDAMENTO ${payload.temperatureC?.toFixed(1)}C (fonte: ${payload.source})`;
-  });
-  await subscribe("lowEnergyWarning", (data) => {
-    const payload = data as { estimatedRangeKm?: number; source?: string };
-    return `AUTONOMIA BASSA ${payload.estimatedRangeKm?.toFixed(1)} km (fonte: ${payload.source})`;
-  });
-  await subscribe("anomalyDetected", (data) => {
-    const payload = data as { systemEfficiency?: number; source?: string };
-    return `ANOMALIA CONSUMI ${payload.systemEfficiency?.toFixed(2)} km/kWh (fonte: ${payload.source})`;
-  });
-  await subscribe("physicalLinkChanged", (data) => {
-    const payload = data as {
-      changes?: Array<{ deviceId?: string; live?: boolean }>;
-      physicalDevices?: number;
-      totalDevices?: number;
-    };
-    const detail = (payload.changes ?? [])
-      .map((change) => `'${change.deviceId}' ${change.live ? "COLLEGATO" : "ASSENTE"}`)
-      .join(", ");
-    return `sorgente dati cambiata: ${detail} — parti fisiche attive ${payload.physicalDevices}/${payload.totalDevices}`;
-  });
-
-  // Il polling resta solo per le grandezze lente, che non giustificano un evento.
-  const lastFlags = { sohLow: false, thermalLow: false, modelOnly: false };
+  // Si segnala il passaggio di soglia, non ogni singola lettura oltre soglia.
+  const lastFlags = { overheat: false, degradedBattery: false, lowRange: false };
 
   const tick = async () => {
     try {
-      const [thermalHealth, batterySoH, powerStatus, batteryStatus] = await Promise.all([
-        readValue<number>(powerUnit, "thermalHealth"),
-        readValue<number>(energyStorage, "batterySoH"),
-        readValue<TwinStatus>(powerUnit, "twinStatus"),
-        readValue<TwinStatus>(energyStorage, "twinStatus")
+      const [temperatureC, estimatedRangeKm, batterySoH] = await Promise.all([
+        readValue<number>(powerUnit, "temperatureC"),
+        readValue<number>(powerUnit, "estimatedRangeKm"),
+        readValue<number>(energyStorage, "batterySoH")
       ]);
 
-      const thermalLow = thermalHealth < 40;
-      const sohLow = batterySoH < 85;
-      const modelOnly = !powerStatus.live && !batteryStatus.live;
+      const risks = evaluateRisks({ temperatureC, batterySoH, estimatedRangeKm });
 
-      if (thermalLow && !lastFlags.thermalLow) {
-        console.warn(`[Diagnostic] Salute termica bassa: ${thermalHealth.toFixed(0)}% (fonte: ${powerStatus.source})`);
+      if (risks.overheat && !lastFlags.overheat) {
+        console.warn(`[Diagnostic] SURRISCALDAMENTO: ${temperatureC.toFixed(1)} C`);
       }
-      if (sohLow && !lastFlags.sohLow) {
-        console.warn(`[Diagnostic] SoH batteria degradato: ${batterySoH.toFixed(0)}% (fonte: ${batteryStatus.source})`);
+      if (risks.degradedBattery && !lastFlags.degradedBattery) {
+        console.warn(`[Diagnostic] SoH batteria degradato: ${batterySoH.toFixed(1)}%`);
       }
-      // Una diagnosi su dati simulati non e' una diagnosi: va dichiarato.
-      if (modelOnly !== lastFlags.modelOnly) {
-        console.log(
-          modelOnly
-            ? "[Diagnostic] nessuna parte fisica collegata: le valutazioni sono su dati simulati"
-            : "[Diagnostic] parte fisica collegata: valutazioni su misure reali"
-        );
+      if (risks.lowRange && !lastFlags.lowRange) {
+        console.warn(`[Diagnostic] AUTONOMIA BASSA: ${estimatedRangeKm.toFixed(1)} km`);
       }
 
-      lastFlags.thermalLow = thermalLow;
-      lastFlags.sohLow = sohLow;
-      lastFlags.modelOnly = modelOnly;
+      lastFlags.overheat = risks.overheat;
+      lastFlags.degradedBattery = risks.degradedBattery;
+      lastFlags.lowRange = risks.lowRange;
     } catch (error) {
       console.warn("[Diagnostic] lettura fallita", error);
     }
@@ -126,7 +84,6 @@ export const startDiagnosticTool = async (config: DiagnosticConfig) => {
 
   return async () => {
     clearInterval(timer);
-    await Promise.all(subscriptions.map((subscription) => subscription.stop().catch(() => undefined)));
     await servient.shutdown();
   };
 };

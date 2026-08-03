@@ -1,19 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createPowerUnitThing = exports.POWER_UNIT_TD = void 0;
+exports.createPowerUnitThing = exports.isDriveMode = exports.POWER_UNIT_TD = void 0;
+const sim_state_1 = require("./sim-state");
 const wot_io_1 = require("./wot-io");
 /**
- * Thing WoT "PowerUnit": faccia digitale del gruppo propulsore.
+ * Thing WoT "PowerUnit": gruppo propulsore ibrido (motore termico + elettrico).
  *
- * Non contiene fisica ne' stato proprio. Legge dal registro del gemello, che
- * a sua volta decide se servire la misura del dispositivo reale o quella del
- * modello di fallback.
+ * Espone lo stato osservabile del propulsore come Properties, il controllo come
+ * Actions e la diagnostica reattiva come Events. La Thing Description e' in
+ * JSON-LD secondo il @context W3C WoT 1.1, con schema di sicurezza `nosec`
+ * adeguato al contesto dimostrativo.
  */
 exports.POWER_UNIT_TD = {
-    "@context": [
-        "https://www.w3.org/2022/wot/td/v1.1",
-        { mqv: "https://www.w3.org/2019/wot/mqtt#" }
-    ],
+    "@context": "https://www.w3.org/2022/wot/td/v1.1",
     "@type": "Thing",
     id: "urn:dev:ops:proactivedrive-powerunit",
     title: "PowerUnit",
@@ -23,48 +22,64 @@ exports.POWER_UNIT_TD = {
     },
     security: ["nosec_sc"],
     properties: {
+        batterySoC: {
+            type: "number",
+            unit: "%",
+            observable: true,
+            readOnly: true,
+            description: "Stato di carica del pacco batteria."
+        },
+        engineRPM: { type: "number", unit: "rpm", observable: true, readOnly: true },
+        torqueNm: { type: "number", unit: "Nm", observable: true, readOnly: true },
+        temperatureC: { type: "number", unit: "celsius", observable: true, readOnly: true },
         systemEfficiency: {
             type: "number",
             unit: "km/kWh",
             observable: true,
             readOnly: true,
-            description: "Indicatore calcolato dal gemello: km percorsi per kWh consumato."
+            description: "Efficienza istantanea filtrata con media mobile esponenziale."
         },
-        batterySoC: { type: "number", unit: "%", observable: true, readOnly: true },
-        engineStatus: { type: "string", enum: ["Off", "Idle", "Running"], observable: true, readOnly: true },
-        thermalHealth: {
+        estimatedRangeKm: {
             type: "number",
-            unit: "%",
+            unit: "km",
             observable: true,
             readOnly: true,
-            description: "Indicatore calcolato dal gemello a partire dalla temperatura misurata."
+            description: "Autonomia residua stimata dallo stato di carica."
+        }
+    },
+    actions: {
+        setDriveMode: {
+            description: "Imposta la modalita' di propulsione.",
+            idempotent: true,
+            input: { type: "string", enum: sim_state_1.DRIVE_MODES },
+            output: {
+                type: "object",
+                properties: { activeMode: { type: "string", enum: sim_state_1.DRIVE_MODES } }
+            }
         },
-        engineRPM: { type: "number", unit: "rpm", observable: true, readOnly: true },
-        torqueNm: { type: "number", unit: "Nm", observable: true, readOnly: true },
-        temperatureC: { type: "number", unit: "celsius", observable: true, readOnly: true },
-        estimatedRangeKm: { type: "number", unit: "km", observable: true, readOnly: true },
-        speedKmh: { type: "number", unit: "km/h", observable: true, readOnly: true },
-        twinStatus: { ...wot_io_1.TWIN_STATUS_SCHEMA, observable: true, readOnly: true }
+        triggerRegen: {
+            description: "Imposta l'intensita' della frenata rigenerativa.",
+            idempotent: true,
+            input: { type: "number", minimum: 1, maximum: 3 },
+            output: {
+                type: "object",
+                properties: { regenIntensity: { type: "number" } }
+            }
+        }
     },
     events: {
         criticalOverheat: {
             description: "Temperatura oltre la soglia critica su inverter o motore.",
             data: {
                 type: "object",
-                properties: {
-                    temperatureC: { type: "number", unit: "celsius" },
-                    source: { type: "string", enum: ["physical", "model"] }
-                }
+                properties: { temperatureC: { type: "number", unit: "celsius" } }
             }
         },
         lowEnergyWarning: {
             description: "Autonomia stimata sotto i 10 km.",
             data: {
                 type: "object",
-                properties: {
-                    estimatedRangeKm: { type: "number", unit: "km" },
-                    source: { type: "string", enum: ["physical", "model"] }
-                }
+                properties: { estimatedRangeKm: { type: "number", unit: "km" } }
             }
         },
         anomalyDetected: {
@@ -73,49 +88,41 @@ exports.POWER_UNIT_TD = {
                 type: "object",
                 properties: {
                     systemEfficiency: { type: "number", unit: "km/kWh" },
-                    torqueNm: { type: "number", unit: "Nm" },
-                    source: { type: "string", enum: ["physical", "model"] }
+                    torqueNm: { type: "number", unit: "Nm" }
                 }
-            }
-        },
-        physicalLinkChanged: {
-            description: "Una o piu' parti fisiche si sono collegate o scollegate: il gemello ha cambiato sorgente dati.",
-            data: {
-                type: "object",
-                properties: {
-                    changes: {
-                        type: "array",
-                        description: "Tutti i cambi di sorgente rilevati nello stesso ciclo.",
-                        items: {
-                            type: "object",
-                            properties: {
-                                deviceId: { type: "string", enum: ["powerunit", "battery", "actuator"] },
-                                live: { type: "boolean" },
-                                source: { type: "string", enum: ["physical", "model"] },
-                                at: { type: "string" }
-                            }
-                        }
-                    },
-                    physicalDevices: { type: "number", description: "Parti fisiche attive dopo il cambio." },
-                    totalDevices: { type: "number" }
-                },
-                required: ["changes", "physicalDevices", "totalDevices"]
             }
         }
     }
 };
-const createPowerUnitThing = async (wot, twin) => {
+const isDriveMode = (value) => typeof value === "string" && sim_state_1.DRIVE_MODES.includes(value);
+exports.isDriveMode = isDriveMode;
+const createPowerUnitThing = async (wot, simulation) => {
     const thing = await wot.produce(exports.POWER_UNIT_TD);
-    thing.setPropertyReadHandler("systemEfficiency", async () => twin.snapshot().systemEfficiency);
-    thing.setPropertyReadHandler("batterySoC", async () => twin.snapshot().batterySoC);
-    thing.setPropertyReadHandler("engineStatus", async () => twin.snapshot().engineStatus);
-    thing.setPropertyReadHandler("thermalHealth", async () => twin.snapshot().thermalHealth);
-    thing.setPropertyReadHandler("engineRPM", async () => twin.snapshot().engineRPM);
-    thing.setPropertyReadHandler("torqueNm", async () => twin.snapshot().torqueNm);
-    thing.setPropertyReadHandler("temperatureC", async () => twin.snapshot().temperatureC);
-    thing.setPropertyReadHandler("estimatedRangeKm", async () => twin.snapshot().estimatedRangeKm);
-    thing.setPropertyReadHandler("speedKmh", async () => twin.snapshot().speedKmh);
-    thing.setPropertyReadHandler("twinStatus", async () => twin.deviceStatus("powerunit"));
+    thing.setPropertyReadHandler("batterySoC", async () => simulation.state.batterySoC);
+    thing.setPropertyReadHandler("engineRPM", async () => simulation.state.engineRPM);
+    thing.setPropertyReadHandler("torqueNm", async () => simulation.state.torqueNm);
+    thing.setPropertyReadHandler("temperatureC", async () => simulation.state.temperatureC);
+    thing.setPropertyReadHandler("systemEfficiency", async () => simulation.state.systemEfficiency);
+    thing.setPropertyReadHandler("estimatedRangeKm", async () => simulation.state.estimatedRangeKm);
+    thing.setActionHandler("setDriveMode", async (params) => {
+        const mode = await (0, wot_io_1.readInteractionInput)(params);
+        if (!(0, exports.isDriveMode)(mode)) {
+            throw new Error(`Modalita' non valida: ${String(mode)}`);
+        }
+        simulation.setDriveMode(mode);
+        console.log(`[PowerUnit] setDriveMode(${mode})`);
+        return { activeMode: simulation.state.driveMode };
+    });
+    thing.setActionHandler("triggerRegen", async (params) => {
+        const raw = await (0, wot_io_1.readInteractionInput)(params);
+        const intensity = Number(raw);
+        if (!Number.isFinite(intensity)) {
+            throw new Error(`Intensita' rigenerazione non valida: ${String(raw)}`);
+        }
+        simulation.setRegenIntensity(intensity);
+        console.log(`[PowerUnit] triggerRegen(${intensity})`);
+        return { regenIntensity: simulation.state.regenIntensity };
+    });
     return thing;
 };
 exports.createPowerUnitThing = createPowerUnitThing;

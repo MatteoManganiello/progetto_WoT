@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="it">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WoT-ProActiveDrive Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -21,7 +20,7 @@
         <div>
           <p class="eyebrow">WoT-ProActiveDrive</p>
           <h1>Intelligenza Propulsore Ibrido</h1>
-          <p class="subtitle">Telemetria in tempo reale, suggerimenti predittivi e controllo remoto.</p>
+          <p class="subtitle">Telemetria in tempo reale, diagnostica a soglie e controllo remoto.</p>
           <div class="hero-badges">
             <span class="badge">WoT Live</span>
             <span class="badge">Digital Twin</span>
@@ -42,50 +41,31 @@
           <p class="hint" id="rangeHint">-- km autonomia stimata</p>
         </div>
         <div class="card">
-          <h3>Stato Motore</h3>
-          <p class="metric" id="engineStatus">--</p>
-          <p class="hint">Giri: <span id="engineRPM">--</span></p>
+          <h3>Regime Motore</h3>
+          <p class="metric" id="engineRPM">--</p>
+          <p class="hint">Coppia: <span id="torqueNm">--</span> Nm</p>
         </div>
         <div class="card">
-          <h3>Salute Termica</h3>
-          <p class="metric" id="thermalHealth">--%</p>
-          <p class="hint">Temp: <span id="temperatureC">--</span> C</p>
+          <h3>Temperatura</h3>
+          <p class="metric" id="temperatureC">--</p>
+          <p class="hint">Soglia critica a 90 C</p>
         </div>
         <div class="card">
           <h3>Efficienza Sistema</h3>
           <p class="metric" id="systemEfficiency">--</p>
-          <p class="hint">Coppia: <span id="torqueNm">--</span> Nm</p>
+          <p class="hint">Media mobile esponenziale</p>
         </div>
-      </section>
-
-      <section class="card twin-panel">
-        <div class="twin-header">
-          <h3>Gemello Digitale &mdash; sorgente dei dati</h3>
-          <p class="hint" id="twinSummary">Rilevamento parti fisiche in corso...</p>
-        </div>
-        <div class="twin-devices" id="twinDevices"></div>
-        <p class="twin-note">
-          Ogni riquadro indica se il valore arriva da un dispositivo reale collegato al bus MQTT
-          oppure dal modello di fallback del gemello. Il sistema resta operativo in entrambi i casi.
-        </p>
       </section>
 
       <section class="split">
         <div class="card strong">
           <h3>Modalita Guida</h3>
-          <p class="hint">
-            Controllo: <span id="controlModeLabel">--</span> &middot;
-            comandi verso: <span id="commandTargetLabel">--</span>
-          </p>
+          <p class="hint">Attuazione remota tramite azione WoT</p>
           <div class="button-group" id="driveModeButtons">
             <button data-mode="Full Electric">Elettrica</button>
             <button data-mode="Hybrid" class="active">Hybrid</button>
             <button data-mode="Sport">Sport</button>
             <button data-mode="Save">Risparmio</button>
-          </div>
-          <div class="button-group control-mode" id="controlModeButtons">
-            <button data-control="Manual">Manuale</button>
-            <button data-control="Auto">Automatico</button>
           </div>
         </div>
         <div class="card strong">
@@ -104,13 +84,6 @@
           <h3>Allarmi</h3>
           <ul class="alerts" id="alertsList">
             <li class="muted">Nessun allarme.</li>
-          </ul>
-        </div>
-        <div class="card">
-          <h3>Eventi WoT sottoscritti</h3>
-          <p class="hint">Ricevuti via long-polling secondo le form della TD</p>
-          <ul class="alerts" id="eventLog">
-            <li class="muted">Nessun evento ricevuto.</li>
           </ul>
         </div>
       </section>

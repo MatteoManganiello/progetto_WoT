@@ -7,14 +7,10 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "ts-node src/server.ts",
-    "sim": "ts-node src/physical/simulator.ts",
-    "sim:battery": "SIM_DEVICES=battery ts-node src/physical/simulator.ts",
-    "dev:all": "npm run dev & npm run sim & wait",
     "test": "node -r ts-node/register tests/run-all.ts"
   },
   "dependencies": {
     "@node-wot/binding-http": "^0.9.2",
-    "@node-wot/binding-mqtt": "^0.9.2",
     "@node-wot/core": "^0.9.2",
     "mqtt": "^5.10.4"
   },

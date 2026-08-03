@@ -1,180 +1,116 @@
 # WoT-ProActiveDrive
 
-Digital Twin di un propulsore ibrido (motore termico + motore elettrico + batteria)
-basato su W3C Web of Things.
+Digital Twin di un propulsore ibrido (motore a combustione interna + motore
+elettrico + pacco batteria) realizzato secondo lo standard W3C Web of Things.
 
-## Architettura: parte fisica e parte digitale separate
+Il sistema simula in tempo reale la dinamica del powertrain, ne espone lo stato
+attraverso Thing Description interoperabili e ne consente il controllo remoto
+tramite una dashboard web.
 
-Il progetto e' diviso in due processi che non condividono memoria e comunicano
-solo attraverso un broker MQTT. E' questa separazione a rendere il sistema un
-Digital Twin e non un simulatore con sopra un'interfaccia web.
-
-```
-┌──────────── PARTE FISICA ──────────────┐
-│  npm run sim                           │   Non conosce la libreria WoT.
-│  src/physical/simulator.ts             │   Un dispositivo reale al suo posto
-│  banco prova dei tre dispositivi       │   parlerebbe lo stesso protocollo.
-└────────────────────────────────────────┘
-        │  pad/physical/<device>/telemetry   (misure)
-        │  pad/physical/<device>/command     (comandi)
-        ▼  contratto: src/physical/protocol.ts
-┌──────────── PARTE DIGITALE ────────────┐
-│  npm run dev                           │
-│  src/twin/shadow.ts    ombra per       │   Per ogni dispositivo: misura reale
-│                        dispositivo     │   se fresca, altrimenti modello.
-│  src/twin/registry.ts  fusione e       │   Indicatori derivati calcolati qui.
-│                        indicatori      │
-│  src/thing.ts, energy-storage.ts,      │   Tre Thing WoT che leggono dal
-│  control-actuator.ts                   │   gemello, mai dalla fisica.
-│  servient: HttpServer + MqttBrokerServer
-└────────────────────────────────────────┘
-        │  binding WoT (HTTP + MQTT), form generate dalla TD
-        ▼
-   src/consumers/*   (WoT.consume + subscribeEvent)
-   dashboard/        (consumer TD-driven nel browser)
-```
-
-### Il sistema funziona con zero, una o tutte le parti fisiche
-
-Ogni dispositivo ha la propria ombra digitale con un TTL (`TWIN_STALE_MS`,
-default 5000 ms). Finche' arrivano misure il gemello serve quelle e le dichiara
-come `physical`; quando smettono di arrivare degrada sul modello e lo dichiara
-come `model`, continuando dall'ultimo valore reale noto. La transizione e'
-pubblicata come evento WoT `physicalLinkChanged`.
-
-La proprieta' `twinStatus`, esposta da tutte e tre le Thing, rende la cosa
-verificabile da qualsiasi client:
-
-```bash
-curl http://localhost:8080/energystorage/properties/twinStatus
-# {"deviceId":"battery","source":"physical","live":true,"samples":7,"ageMs":437}
-```
-
-## Avvio rapido
+## Avvio
 
 ```bash
 npm install
-
-# Terminale 1 — parte digitale (broker MQTT integrato, nessuna installazione)
-MQTT_SELF_HOST=true npm run dev
-
-# Terminale 2 — parte fisica
-npm run sim
+npm run dev
 ```
 
-Senza `MQTT_SELF_HOST` serve un broker esterno su `mqtt://localhost:1883`
-(configurabile con `MQTT_BROKER_URL`).
+- Thing WoT (HTTP): `http://localhost:8080/powerunit` · `/energystorage` · `/controlactuator`
+- Dashboard web (telemetria live, grafici, controllo guida/rigenerazione): `http://localhost:8091`
 
-- Thing Description: `http://localhost:8080/powerunit`, `/energystorage`, `/controlactuator`
-- Dashboard: `http://localhost:8091`
-- Stato del gemello: `http://localhost:8091/api/twin-status`
-- Storico: `http://localhost:8091/api/history` (persistito in `data/history.json`)
-
-### Dimostrare la separazione fisico/digitale
+Esempi di interazione:
 
 ```bash
-# Solo la batteria e' "reale": le altre due parti restano coperte dal modello
-SIM_DEVICES=battery npm run sim
+# Lettura di una proprieta'
+curl http://localhost:8080/powerunit/properties/batterySoC
 
-# Staccare la parte fisica a caldo: la telemetria non si interrompe,
-# twinStatus passa da "physical" a "model" ed esce l'evento physicalLinkChanged
-# (Ctrl+C sul terminale del simulatore)
-
-# Nessuna parte fisica e nessun broker: il gemello lavora sul solo modello
-MQTT_ENABLED=false npm run dev
+# Invocazione di un'azione
+curl -X POST http://localhost:8080/controlactuator/actions/setDriveMode \
+     -H "Content-Type: application/json" -d '"Sport"'
 ```
 
-## Uso della libreria WoT e dei binding templates
+Esecuzione dei test: `npm test`
 
-Tutta la comunicazione WoT passa da node-wot. Non esistono topic MQTT scritti a
-mano ne' URL cablati nei client.
+## Architettura
 
-**Lato server** — il servient monta due binding:
+Il sistema e' composto da tre Thing WoT, ciascuna con la propria Thing
+Description auto-descrittiva in JSON-LD (`@context` W3C WoT 1.1, schema di
+sicurezza `nosec` adeguato al contesto dimostrativo).
 
-```ts
-servient.addServer(new HttpServer({ port: 8080, ... }));
-servient.addServer(new MqttBrokerServer({ uri: mqttBrokerUrl, selfHost }));
-```
-
-Le form vengono generate dalla TD. Con MQTT attivo, `GET /powerunit` include:
-
-```json
-{ "href": "mqtt://localhost:1883/PowerUnit/events/criticalOverheat",
-  "contentType": "application/json", "mqv:qos": "2",
-  "op": ["subscribeevent", "unsubscribeevent"] }
-```
-
-e node-wot pubblica di conseguenza:
-
-```
-PowerUnit/properties/batterySoC          64.88
-EnergyStorage/properties/batterySoH      95.97
-ControlActuator/properties/driveMode     "Hybrid"
-```
-
-**Lato client** — i consumer registrano le client factory e poi consumano la TD:
-
-```ts
-servient.addClientFactory(new HttpClientFactory());
-servient.addClientFactory(new MqttClientFactory());
-const td = await wot.requestThingDescription(url);
-const thing = await wot.consume(td);
-await thing.subscribeEvent("criticalOverheat", handler);
-await thing.invokeAction("setDriveMode", "Sport");
-```
-
-Il protocollo lo sceglie la libreria leggendo le form. Se il broker non c'e', le
-TD espongono solo form HTTP e i consumer si adattano senza modifiche al codice.
-
-## Componenti
-
-### Things (parte digitale)
-
-| Thing | Ruolo | Dispositivo fisico |
+| Thing | Ruolo | Espone |
 |---|---|---|
-| `PowerUnit` | propulsore ibrido, eventi diagnostici | `powerunit` |
-| `EnergyStorage` | pacco batteria | `battery` |
-| `ControlActuator` | unico punto di attuazione | `actuator` |
+| `PowerUnit` | motore ibrido (ICE + elettrico) | SoC, RPM, coppia, temperatura, efficienza, autonomia + azioni + eventi |
+| `EnergyStorage` | pacco batteria | SoC, SoH, tensione, corrente, temperatura |
+| `ControlActuator` | attuatore di controllo | modalita' di guida, frenata rigenerativa + azioni di comando |
 
-**Proprieta'** — misurate: `engineRPM`, `torqueNm`, `temperatureC`, `speedKmh`,
-`engineStatus`, `batterySoC`, `batterySoH`, `voltageV`, `currentA`.
-Calcolate dal gemello: `systemEfficiency`, `thermalHealth`, `estimatedRangeKm`.
-Di supervisione: `controlMode`, `regenMode`, `commandTarget`, `twinStatus`.
+Sono usati tutti e tre i tipi di interaction affordance previsti dallo standard:
 
-**Azioni** (solo su `ControlActuator`): `setDriveMode(mode)`,
-`triggerRegen(1-3)`, `setControlMode(Manual|Auto)`.
-
-**Eventi** (su `PowerUnit`): `criticalOverheat`, `lowEnergyWarning`,
-`anomalyDetected`, `physicalLinkChanged`.
+| Affordance | Semantica | Uso nel progetto |
+|---|---|---|
+| Properties | stato osservabile e leggibile | SoC, SoH, RPM, coppia, temperatura, efficienza, autonomia, modalita' |
+| Actions | invocazione di funzioni che modificano lo stato | `setDriveMode`, `triggerRegen` |
+| Events | notifiche asincrone su condizioni | `criticalOverheat`, `lowEnergyWarning`, `anomalyDetected` |
 
 ### Consumer WoT
 
-- **Energy Orchestrator** (`src/consumers/energy-orchestrator.ts`) — attivo solo
-  con `controlMode = Auto`. Legge SoC e velocita' dalle Thing consumate e chiama
-  `invokeAction("setDriveMode", ...)`. Le regole sono in `computeDriveMode`,
-  funzione pura coperta da test.
-- **Diagnostic Tool** (`src/consumers/diagnostic-tool.ts`) — sottoscrive i
-  quattro eventi e distingue una diagnosi su misure reali da una su dati
-  simulati, perche' legge anche `twinStatus`.
-- **Dashboard** (`dashboard/app.js`) — consumer nel browser: scarica le tre TD,
-  ricava le form di proprieta', azioni ed eventi, e usa il sottoprotocollo
-  `longpoll` dichiarato dalla TD per gli eventi.
+- **Diagnostic Tool** (`src/consumers/diagnostic-tool.ts`) — legge periodicamente
+  le proprieta' via HTTP e segnala i rischi (surriscaldamento, degrado del SoH,
+  autonomia bassa) applicando soglie diagnostiche.
+- **Predictive Dashboard** (`dashboard/`) — interfaccia web che interroga via
+  HTTP le proprieta' di `PowerUnit` e `ControlActuator`, ne mostra l'andamento
+  storico e invia i comandi di controllo.
+- **Energy Orchestrator** (`src/consumers/energy-orchestrator.ts`) — consumer di
+  riferimento per la gestione automatica della coppia. Incluso a scopo
+  architetturale, disattivato in favore del controllo manuale da dashboard.
 
-### Instradamento dei comandi
+### Comunicazione
 
-Un'azione WoT non tocca mai la fisica direttamente. Il registro decide:
+- **HTTP** (sincrono, request/response) — espone le Thing Description, la lettura
+  delle proprieta' e l'invocazione delle azioni.
+- **MQTT** (asincrono, publish/subscribe) — pubblica la telemetria in streaming
+  sul topic `wot/proactivedrive/telemetry`. Il broker e' opzionale: se non
+  raggiungibile, il sistema effettua un fallback automatico in modalita'
+  HTTP-only, garantendo la continuita' del servizio.
 
-- attuatore fisico collegato → il comando esce su `pad/physical/actuator/command`
-  e il dispositivo resta l'autorita' sullo stato riportato;
-- attuatore assente → il comando e' applicato al modello.
+## Modello di simulazione
 
-L'esito e' nel valore di ritorno dell'azione:
+Il gemello digitale e' guidato da un modello a tempo discreto (passo di 2 s) che,
+a ogni ciclo, aggiorna in modo accoppiato:
 
-```bash
-curl -X POST http://localhost:8080/controlactuator/actions/setDriveMode \
-  -H "Content-Type: application/json" -d '"Sport"'
-# {"activeMode":"Sport","target":"physical"}   oppure   "target":"model"
-```
+- **Cinematica** — velocita' con andamento sinusoidale modulato dalla modalita'
+  di guida (offset per Sport / Full Electric).
+- **Coppia e regime motore** — funzione della domanda di velocita' e della
+  modalita'; determinano lo stato del motore termico (Off / Idle / Running).
+- **Bilancio energetico della batteria** — consumo dipendente da modalita',
+  domanda e stato di carica, con recupero da frenata rigenerativa in
+  decelerazione.
+- **Modello termico** — riscaldamento per carico, velocita' e modalita' Sport;
+  raffreddamento per flusso d'aria e rigenerazione. Da esso derivano
+  `thermalHealth` e l'usura (SoH) della batteria.
+- **Efficienza di sistema** — efficienza istantanea (km/kWh) filtrata con una
+  media mobile esponenziale (EMA), per riflettere il consumo reale evitando
+  transitori all'avvio.
+
+Le modalita' di guida (Full Electric, Hybrid, Sport, Save) e l'intensita' di
+rigenerazione (1–3) sono le variabili di controllo esposte tramite azioni.
+
+## Validazione
+
+`npm test` esegue 33 verifiche: test automatici sul modello e sulle regole dei
+consumer, simulazioni parametriche per modalita' di guida (120 cicli, circa
+4 minuti di simulazione) e verifica end-to-end dell'interfaccia WoT via HTTP
+(lettura proprieta', invocazione azioni, generazione della TD).
+
+| Modalita' | Efficienza (km/kWh) | Comportamento osservato |
+|---|---|---|
+| Save | 6,2 – 10,0 | massima efficienza, sistema stabile |
+| Hybrid | 4,4 – 5,8 | funzionamento nominale bilanciato |
+| Full Electric | 2,8 – 5,4 | scarica batteria piu' rapida |
+| Sport | 2,9 – 5,1 | surriscaldamento e `criticalOverheat` attivato |
+
+In `STRESS_MODE` la temperatura raggiunge la soglia massima (120 °C) attivando
+ripetutamente l'evento di surriscaldamento, mentre la scarica progressiva della
+batteria genera l'evento di bassa autonomia. In condizioni nominali non si
+osservano falsi positivi sugli eventi di anomalia.
 
 ## Variabili d'ambiente
 
@@ -182,26 +118,11 @@ curl -X POST http://localhost:8080/controlactuator/actions/setDriveMode \
 |---|---|---|
 | `HTTP_PORT` | `8080` | porta delle Thing |
 | `DASHBOARD_PORT` | `8091` | porta della dashboard |
-| `MQTT_BROKER_URL` | `mqtt://localhost:1883` | broker |
-| `MQTT_ENABLED` | `true` | disattiva del tutto MQTT |
-| `MQTT_SELF_HOST` | `false` | broker integrato in node-wot |
-| `TWIN_STALE_MS` | `5000` | scadenza di una misura fisica |
-| `CONSUMERS_ENABLED` | `true` | avvio dei consumer |
-| `SIM_DEVICES` | tutti | dispositivi simulati (`battery`, `powerunit`, `actuator`) |
-| `SIM_INTERVAL_MS` | `1000` | periodo di pubblicazione |
-| `STRESS_MODE` | `false` | accelera il raggiungimento delle soglie critiche |
-
-## Test
-
-```bash
-npm test
-```
-
-34 test su modello fisico, protocollo, ombre digitali (TTL, degrado, pacchetti
-fuori ordine, riavvio dispositivo), registro del gemello (0/1/N parti reali,
-instradamento comandi, indicatori derivati) e regole dell'orchestratore.
+| `MQTT_BROKER_URL` | `mqtt://localhost:1883` | broker per lo streaming di telemetria |
+| `MQTT_ENABLED` | `true` | `false` per la sola modalita' HTTP |
+| `STRESS_MODE` | `false` | forza rapidamente le soglie critiche |
 
 ## Tecnologie
 
-Node.js, TypeScript, `@node-wot/core`, `@node-wot/binding-http`,
-`@node-wot/binding-mqtt`, MQTT, Chart.js.
+Node.js · TypeScript · node-wot (implementazione di riferimento W3C WoT) ·
+HTTP · MQTT (formato JSON) · HTML5 · CSS3 · JavaScript · Chart.js

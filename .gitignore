@@ -1,0 +1,11 @@
+# Dipendenze: si reinstallano con `npm install`
+node_modules/
+
+# Output di compilazione: si rigenera con `npm run build`
+dist/
+
+# Stato di runtime del gemello, non codice sorgente
+data/history.json
+
+# File di sistema
+.DS_Store

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { Servient } from "@node-wot/core";
 import { HttpServer } from "@node-wot/binding-http";
 import { createSimulation } from "../src/sim-state";
+import { createSimulatedSources } from "../src/sources";
 import { createPowerUnitThing } from "../src/thing";
 import { createEnergyStorageThing } from "../src/energy-storage";
 import { createControlActuatorThing } from "../src/control-actuator";
@@ -79,13 +80,14 @@ export const run = async () => {
   suite("Interfaccia WoT end-to-end via HTTP");
 
   const simulation = createSimulation();
+  const sources = createSimulatedSources(simulation);
   const servient = new Servient();
   servient.addServer(new HttpServer({ port: PORT }));
   const wot = await servient.start();
 
-  const powerUnit = await createPowerUnitThing(wot, simulation);
-  const energyStorage = await createEnergyStorageThing(wot, simulation);
-  const controlActuator = await createControlActuatorThing(wot, simulation);
+  const powerUnit = await createPowerUnitThing(wot, sources);
+  const energyStorage = await createEnergyStorageThing(wot, sources);
+  const controlActuator = await createControlActuatorThing(wot, sources);
   await Promise.all([powerUnit.expose(), energyStorage.expose(), controlActuator.expose()]);
 
   try {

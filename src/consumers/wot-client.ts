@@ -1,16 +1,23 @@
 import { Servient } from "@node-wot/core";
 import { HttpClientFactory } from "@node-wot/binding-http";
+import { MqttClientFactory } from "@node-wot/binding-mqtt";
 
 /**
  * Servient lato CLIENT.
  *
- * Registra la client factory HTTP: da questo momento il consumer non costruisce
- * piu' URL a mano. E' node-wot a risolvere le `forms` dichiarate nella Thing
- * Description e a scegliere come raggiungere ogni interazione.
+ * Registra le client factory dei protocolli che il consumer sa parlare: da
+ * questo momento non costruisce piu' URL a mano. E' node-wot a risolvere le
+ * `forms` dichiarate nella Thing Description e a scegliere come raggiungere
+ * ogni interazione.
+ *
+ * Registrare anche MQTT accanto a HTTP e' esattamente il valore dei binding
+ * templates: il codice del consumer resta identico, e' la TD a determinare su
+ * quale protocollo l'interazione viaggia.
  */
 export const createConsumerServient = async () => {
   const servient = new Servient();
   servient.addClientFactory(new HttpClientFactory());
+  servient.addClientFactory(new MqttClientFactory());
   const wot = await servient.start();
   return { wot, servient };
 };

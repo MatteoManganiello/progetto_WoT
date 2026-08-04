@@ -31,6 +31,16 @@ export const DRIVE_MODES: DriveMode[] = ["Full Electric", "Hybrid", "Sport", "Sa
 /** Passo del modello a tempo discreto. */
 export const STEP_SECONDS = 2;
 
+/**
+ * Soglie che fanno scattare gli eventi WoT. Esposte perche' il runtime le
+ * applica allo stato *effettivo* del gemello, che con una parte reale collegata
+ * non coincide piu' con quello simulato.
+ */
+export const EVENT_THRESHOLDS = {
+  overheatC: 90,
+  lowRangeKm: 10
+};
+
 /** Energia equivalente associata a un punto percentuale di stato di carica. */
 const ENERGY_PER_SOC_KWH = 0.0096;
 
@@ -175,8 +185,8 @@ export const createSimulation = () => {
     lastSpeed = state.speedKmh;
 
     return {
-      criticalOverheat: state.temperatureC > 90,
-      lowEnergyWarning: state.estimatedRangeKm < 10,
+      criticalOverheat: state.temperatureC > EVENT_THRESHOLDS.overheatC,
+      lowEnergyWarning: state.estimatedRangeKm < EVENT_THRESHOLDS.lowRangeKm,
       anomalyDetected
     };
   };

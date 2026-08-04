@@ -1,9 +1,12 @@
-import { Simulation } from "./sim-state";
+import { TwinSources } from "./sources";
+import { bindReadHandlers } from "./wot-io";
 
 /**
  * Thing WoT "EnergyStorage": pacco batteria ad alta tensione.
  *
  * Espone solo Properties: e' un sottosistema osservabile, non attuabile.
+ * Legge dalla porta `sources.energyStorage`, indifferente al fatto che il pacco
+ * sia simulato o un dispositivo reale collegato al sistema.
  */
 export const ENERGY_STORAGE_TD: WoT.ExposedThingInit = {
   "@context": "https://www.w3.org/2022/wot/td/v1.1",
@@ -36,14 +39,12 @@ export const ENERGY_STORAGE_TD: WoT.ExposedThingInit = {
   }
 };
 
-export const createEnergyStorageThing = async (wot: typeof WoT, simulation: Simulation) => {
+export const createEnergyStorageThing = async (wot: typeof WoT, sources: TwinSources) => {
   const thing = await wot.produce(ENERGY_STORAGE_TD);
 
-  thing.setPropertyReadHandler("batterySoC", async () => simulation.state.batterySoC);
-  thing.setPropertyReadHandler("batterySoH", async () => simulation.state.batterySoH);
-  thing.setPropertyReadHandler("voltageV", async () => simulation.state.voltageV);
-  thing.setPropertyReadHandler("currentA", async () => simulation.state.currentA);
-  thing.setPropertyReadHandler("temperatureC", async () => simulation.state.temperatureC);
+  bindReadHandlers(thing, sources.energyStorage, [
+    "batterySoC", "batterySoH", "voltageV", "currentA", "temperatureC"
+  ]);
 
   return thing;
 };

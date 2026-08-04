@@ -7,10 +7,12 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "dev": "ts-node src/server.ts",
+    "device": "ts-node scripts/fake-device.ts",
     "test": "node -r ts-node/register tests/run-all.ts"
   },
   "dependencies": {
     "@node-wot/binding-http": "^0.9.2",
+    "@node-wot/binding-mqtt": "^0.9.2",
     "@node-wot/core": "^0.9.2",
     "mqtt": "^5.10.4"
   },

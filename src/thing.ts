@@ -1,5 +1,6 @@
-import { DRIVE_MODES, DriveMode, Simulation } from "./sim-state";
-import { readInteractionInput } from "./wot-io";
+import { ACTUATOR_ACTIONS, bindActuatorActions } from "./actuator-actions";
+import { TwinSources } from "./sources";
+import { bindReadHandlers } from "./wot-io";
 
 /**
  * Thing WoT "PowerUnit": gruppo propulsore ibrido (motore termico + elettrico).
@@ -8,6 +9,9 @@ import { readInteractionInput } from "./wot-io";
  * Actions e la diagnostica reattiva come Events. La Thing Description e' in
  * JSON-LD secondo il @context W3C WoT 1.1, con schema di sicurezza `nosec`
  * adeguato al contesto dimostrativo.
+ *
+ * La Thing non sa se il propulsore sia simulato o reale: legge dalla porta
+ * `sources.powerUnit` e inoltra i comandi a `sources.controlActuator`.
  */
 export const POWER_UNIT_TD: WoT.ExposedThingInit = {
   "@context": "https://www.w3.org/2022/wot/td/v1.1",
@@ -46,26 +50,7 @@ export const POWER_UNIT_TD: WoT.ExposedThingInit = {
       description: "Autonomia residua stimata dallo stato di carica."
     }
   },
-  actions: {
-    setDriveMode: {
-      description: "Imposta la modalita' di propulsione.",
-      idempotent: true,
-      input: { type: "string", enum: DRIVE_MODES },
-      output: {
-        type: "object",
-        properties: { activeMode: { type: "string", enum: DRIVE_MODES } }
-      }
-    },
-    triggerRegen: {
-      description: "Imposta l'intensita' della frenata rigenerativa.",
-      idempotent: true,
-      input: { type: "number", minimum: 1, maximum: 3 },
-      output: {
-        type: "object",
-        properties: { regenIntensity: { type: "number" } }
-      }
-    }
-  },
+  actions: ACTUATOR_ACTIONS,
   events: {
     criticalOverheat: {
       description: "Temperatura oltre la soglia critica su inverter o motore.",
@@ -94,39 +79,13 @@ export const POWER_UNIT_TD: WoT.ExposedThingInit = {
   }
 };
 
-export const isDriveMode = (value: unknown): value is DriveMode =>
-  typeof value === "string" && (DRIVE_MODES as string[]).includes(value);
-
-export const createPowerUnitThing = async (wot: typeof WoT, simulation: Simulation) => {
+export const createPowerUnitThing = async (wot: typeof WoT, sources: TwinSources) => {
   const thing = await wot.produce(POWER_UNIT_TD);
 
-  thing.setPropertyReadHandler("batterySoC", async () => simulation.state.batterySoC);
-  thing.setPropertyReadHandler("engineRPM", async () => simulation.state.engineRPM);
-  thing.setPropertyReadHandler("torqueNm", async () => simulation.state.torqueNm);
-  thing.setPropertyReadHandler("temperatureC", async () => simulation.state.temperatureC);
-  thing.setPropertyReadHandler("systemEfficiency", async () => simulation.state.systemEfficiency);
-  thing.setPropertyReadHandler("estimatedRangeKm", async () => simulation.state.estimatedRangeKm);
-
-  thing.setActionHandler("setDriveMode", async (params) => {
-    const mode = await readInteractionInput(params);
-    if (!isDriveMode(mode)) {
-      throw new Error(`Modalita' non valida: ${String(mode)}`);
-    }
-    simulation.setDriveMode(mode);
-    console.log(`[PowerUnit] setDriveMode(${mode})`);
-    return { activeMode: simulation.state.driveMode };
-  });
-
-  thing.setActionHandler("triggerRegen", async (params) => {
-    const raw = await readInteractionInput(params);
-    const intensity = Number(raw);
-    if (!Number.isFinite(intensity)) {
-      throw new Error(`Intensita' rigenerazione non valida: ${String(raw)}`);
-    }
-    simulation.setRegenIntensity(intensity);
-    console.log(`[PowerUnit] triggerRegen(${intensity})`);
-    return { regenIntensity: simulation.state.regenIntensity };
-  });
+  bindReadHandlers(thing, sources.powerUnit, [
+    "batterySoC", "engineRPM", "torqueNm", "temperatureC", "systemEfficiency", "estimatedRangeKm"
+  ]);
+  bindActuatorActions(thing, sources.controlActuator, "PowerUnit");
 
   return thing;
 };

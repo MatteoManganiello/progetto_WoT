@@ -8,15 +8,12 @@ import {
 } from "./types";
 
 /**
- * SORGENTI SIMULATE.
+ * Adattatori sul modello di `sim-state`: proiettano lo stato globale della
+ * simulazione sulla vista di ciascun componente, e restano il fallback quando
+ * la parte reale non c'e'.
  *
- * Adattatori sottili sul modello fisico di `sim-state`: proiettano lo stato
- * globale della simulazione sulla vista di ciascun componente. Sono la parte
- * "digitale pura" del gemello e restano il fallback quando la parte reale
- * non e' presente.
- *
- * La proiezione resta esplicita, campo per campo: le letture sono il contratto
- * del componente fisico e non devono dipendere dalla forma interna del modello.
+ * La proiezione e' esplicita campo per campo: la lettura e' il contratto verso
+ * il componente fisico, non deve seguire la forma interna del modello.
  */
 const project = <TReading>(
   component: string,

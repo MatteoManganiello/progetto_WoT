@@ -1,12 +1,9 @@
 import { DriveMode, EngineStatus } from "../sim-state";
 
 /**
- * PORTE DEL GEMELLO DIGITALE.
- *
- * Il livello WoT non deve sapere se un componente e' simulato o reale: dipende
- * solo da questi contratti. Ogni componente fisico ha la sua porta, cosi' la
- * sostituzione e' granulare — si puo' rendere reale il solo pacco batteria
- * lasciando simulato tutto il resto.
+ * Contratti a cui il livello WoT si appoggia, cosi' non deve sapere se un
+ * componente e' simulato o reale. Una porta per componente, in modo da poter
+ * rendere reale il solo pacco batteria lasciando simulato il resto.
  */
 
 export type PowerUnitReading = {
@@ -38,11 +35,9 @@ export type ControlActuatorReading = {
 export type SourceKind = "simulated" | "real";
 
 /**
- * Sorgente di un componente del gemello.
- *
- * `snapshot()` e' sincrona di proposito: restituisce l'ultimo stato noto, senza
- * I/O. Un gemello digitale deve saper rispondere sempre, anche quando la parte
- * reale tace; e' `origin()` a dichiarare se il dato e' misurato o simulato.
+ * `snapshot()` e' sincrona di proposito: restituisce l'ultimo stato noto senza
+ * I/O, cosi' una lettura non resta appesa in attesa di un dispositivo che non
+ * risponde. A dire se il dato e' misurato o stimato ci pensa `origin()`.
  */
 export interface ComponentSource<TReading> {
   readonly component: string;

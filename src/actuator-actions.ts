@@ -3,12 +3,9 @@ import { ActuatorSource } from "./sources";
 import { readInteractionInput } from "./wot-io";
 
 /**
- * AFFORDANCE DI COMANDO, CONDIVISE.
- *
- * `PowerUnit` e `ControlActuator` espongono gli stessi due comandi: il gruppo
- * propulsore perche' e' l'oggetto del comando, la centralina perche' ne e'
- * l'attuatore. Le due Thing restano distinte, ma la dichiarazione e il
- * comportamento dei comandi sono definiti una volta sola.
+ * `PowerUnit` e `ControlActuator` espongono gli stessi due comandi: il primo
+ * perche' e' l'oggetto del comando, la seconda perche' ne e' l'attuatore. Le
+ * Thing restano distinte, la dichiarazione dei comandi sta qui una volta sola.
  */
 export const ACTUATOR_ACTIONS: WoT.ExposedThingInit["actions"] = {
   setDriveMode: {
@@ -34,10 +31,7 @@ export const ACTUATOR_ACTIONS: WoT.ExposedThingInit["actions"] = {
 export const isDriveMode = (value: unknown): value is DriveMode =>
   typeof value === "string" && (DRIVE_MODES as string[]).includes(value);
 
-/**
- * Collega i comandi alla porta dell'attuatore: e' li' che si decide se il
- * comando finisce al dispositivo reale o al modello simulato.
- */
+/** Collega i comandi alla porta dell'attuatore, che decide dove farli finire. */
 export const bindActuatorActions = (
   thing: WoT.ExposedThing,
   actuator: ActuatorSource,

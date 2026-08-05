@@ -9,21 +9,15 @@ import { createControlActuatorThing } from "../src/control-actuator";
 import { suite, testAsync } from "./harness";
 
 /**
- * VERIFICA END-TO-END DELL'INTERFACCIA WoT VIA HTTP.
- *
  * Espone davvero le tre Thing su una porta e le interroga come farebbe un
- * consumer esterno: scarica la Thing Description, ne ricava le `forms` e passa
- * solo da quelle. Copre generazione della TD, lettura delle proprieta' e
- * invocazione delle azioni.
+ * consumer esterno: scarica la TD, ne ricava le `forms` e passa solo da quelle.
  */
 const PORT = 8123;
 const BASE_URL = `http://localhost:${PORT}`;
 
-/**
- * node-wot genera le href con l'indirizzo con cui il server si e' annunciato,
- * che in un ambiente di test puo' non essere raggiungibile. Si conserva il
- * percorso dichiarato nella TD e si riallinea solo l'origine.
- */
+// node-wot genera le href con l'indirizzo con cui il server si e' annunciato,
+// che sotto test puo' non essere raggiungibile: si tiene il percorso della TD
+// e si riallinea solo l'origine.
 const alignOrigin = (href: string) => {
   const url = new URL(href);
   return `${BASE_URL}${url.pathname}${url.search}`;

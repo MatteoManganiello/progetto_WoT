@@ -2,13 +2,8 @@ import assert from "node:assert/strict";
 import { DRIVE_MODES, DriveMode, createSimulation } from "../src/sim-state";
 import { suite, test } from "./harness";
 
-/**
- * SIMULAZIONI PARAMETRICHE PER MODALITA' DI GUIDA.
- *
- * 120 cicli da 2 s corrispondono a circa 4 minuti di simulazione. I primi cicli
- * sono di assestamento della media mobile e non entrano nella misura: e' il
- * transitorio d'avvio che il filtro esponenziale ha il compito di assorbire.
- */
+// 120 cicli da 2 s sono circa 4 minuti di simulazione. I primi servono alla
+// media mobile per assestarsi e restano fuori dalla misura.
 const CYCLES = 120;
 const WARMUP_CYCLES = 30;
 

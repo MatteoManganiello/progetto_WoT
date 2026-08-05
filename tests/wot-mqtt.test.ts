@@ -10,15 +10,13 @@ import { createControlActuatorThing } from "../src/control-actuator";
 import { suite, testAsync } from "./harness";
 
 /**
- * BINDING TEMPLATE MQTT.
+ * Verifica che le stesse affordance, dichiarate una volta sola nella TD, siano
+ * raggiungibili su due protocolli: le `forms` generate da node-wot devono
+ * comprendere sia HTTP sia MQTT, e un consumer deve poterle usare senza
+ * cambiare una riga.
  *
- * Verifica che le stesse affordance, dichiarate una volta sola nella Thing
- * Description, siano raggiungibili su due protocolli: le `forms` generate da
- * node-wot devono comprendere sia HTTP sia MQTT, e un consumer deve poterle
- * usare senza cambiare una riga di codice.
- *
- * Il broker e' quello embedded del binding (aedes), su una porta dedicata: i
- * test non richiedono alcun broker installato.
+ * Il broker e' quello embedded del binding, su una porta dedicata: non serve
+ * averne uno installato.
  */
 const HTTP_PORT = 8124;
 const BROKER_PORT = 1884;
@@ -151,13 +149,10 @@ export const run = async () => {
       await subscription.stop();
     });
   } finally {
-    /*
-     * node-wot 0.9.2 chiude il pool MQTT senza attendere le disiscrizioni in
-     * volo (`mqtt-message-pool.end()`): la connessione cade prima che il broker
-     * risponda e la promise pendente viene rifiutata. Si lascia loro il tempo di
-     * completare, cosi' la chiusura resta pulita e `npm test` non eredita un
-     * errore che non appartiene al progetto.
-     */
+    // node-wot 0.9.2 chiude il pool MQTT senza aspettare le disiscrizioni in
+    // volo: la connessione cade prima della risposta del broker e la promise
+    // viene rifiutata. Dandogli il tempo di completare, `npm test` non eredita
+    // un errore che non e' nostro.
     await new Promise((resolve) => setTimeout(resolve, 300));
     await consumer.servient.shutdown();
     await servient.shutdown();

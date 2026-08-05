@@ -4,14 +4,12 @@ import { TwinSources } from "./sources";
 import { bindReadHandlers } from "./wot-io";
 
 /**
- * Thing WoT "ControlActuator": attuatore di controllo del powertrain.
+ * Thing "ControlActuator": centralina di controllo del powertrain. Le due
+ * variabili di controllo come Properties, i comandi che le modificano come
+ * Actions.
  *
- * Espone come Properties le due variabili di controllo (modalita' di guida e
- * intensita' di rigenerazione) e come Actions i comandi che le modificano.
- *
- * E' il punto in cui si chiude il verso digitale -> fisico del gemello: se
- * l'attuatore reale e' presente, la porta inoltra a lui il comando; altrimenti
- * lo applica al modello simulato.
+ * E' il punto in cui si chiude il verso digitale -> fisico: se l'attuatore
+ * reale c'e' il comando va a lui, altrimenti al modello.
  */
 export const CONTROL_ACTUATOR_TD: WoT.ExposedThingInit = {
   "@context": "https://www.w3.org/2022/wot/td/v1.1",

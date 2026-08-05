@@ -1,10 +1,7 @@
 /**
- * ADATTAMENTO FRA node-wot E LE PORTE DEL GEMELLO.
- *
- * Lettura degli input di una interazione WoT: node-wot consegna agli handler un
- * `InteractionOutput`: e' lui a occuparsi del content-type e della
- * deserializzazione, in base alla form scelta dal client. Basta chiamare
- * `value()`.
+ * node-wot consegna agli handler un `InteractionOutput` e si occupa lui di
+ * content-type e deserializzazione, in base alla form scelta dal client:
+ * qui basta chiamare `value()`.
  */
 export const readInteractionInput = async (params: unknown): Promise<unknown> => {
   if (
@@ -19,11 +16,8 @@ export const readInteractionInput = async (params: unknown): Promise<unknown> =>
 };
 
 /**
- * Collega le proprieta' della Thing all'ultimo stato noto del componente.
- *
- * I nomi delle proprieta' coincidono con quelli della lettura, quindi il
- * collegamento e' meccanico: dichiararlo una riga per volta aggiungeva
- * ripetizione senza aggiungere informazione.
+ * Collega le proprieta' della Thing all'ultimo stato noto del componente. I
+ * nomi coincidono con quelli della lettura, quindi il giro e' meccanico.
  */
 export const bindReadHandlers = <TReading extends object>(
   thing: WoT.ExposedThing,

@@ -3,15 +3,12 @@ import { TwinSources } from "./sources";
 import { bindReadHandlers } from "./wot-io";
 
 /**
- * Thing WoT "PowerUnit": gruppo propulsore ibrido (motore termico + elettrico).
+ * Thing "PowerUnit": gruppo propulsore ibrido (motore termico + elettrico).
+ * Stato osservabile come Properties, controllo come Actions, diagnostica come
+ * Events. Sicurezza `nosec`, sufficiente per una demo locale.
  *
- * Espone lo stato osservabile del propulsore come Properties, il controllo come
- * Actions e la diagnostica reattiva come Events. La Thing Description e' in
- * JSON-LD secondo il @context W3C WoT 1.1, con schema di sicurezza `nosec`
- * adeguato al contesto dimostrativo.
- *
- * La Thing non sa se il propulsore sia simulato o reale: legge dalla porta
- * `sources.powerUnit` e inoltra i comandi a `sources.controlActuator`.
+ * Non sa se il propulsore sia simulato o reale: legge da `sources.powerUnit` e
+ * inoltra i comandi a `sources.controlActuator`.
  */
 export const POWER_UNIT_TD: WoT.ExposedThingInit = {
   "@context": "https://www.w3.org/2022/wot/td/v1.1",

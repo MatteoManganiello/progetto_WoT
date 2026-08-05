@@ -23,9 +23,7 @@ export type DiagnosticReading = {
   estimatedRangeKm: number;
 };
 
-/**
- * Regole diagnostiche a soglia. Funzione pura, verificabile senza servient.
- */
+/** Regole a soglia, tenute pure cosi' si testano senza avviare un servient. */
 export const evaluateRisks = (reading: DiagnosticReading) => ({
   overheat: reading.temperatureC > DIAGNOSTIC_THRESHOLDS.overheatC,
   degradedBattery: reading.batterySoH < DIAGNOSTIC_THRESHOLDS.degradedSoH,
@@ -33,11 +31,9 @@ export const evaluateRisks = (reading: DiagnosticReading) => ({
 });
 
 /**
- * DIAGNOSTIC TOOL — consumer WoT.
- *
- * Non conosce gli URL delle proprieta': consuma le due Thing Description e legge
- * periodicamente via `readProperty`, lasciando a node-wot la risoluzione delle
- * form. Applica poi le soglie diagnostiche e segnala i rischi.
+ * Consumer di diagnostica: consuma le due TD e legge periodicamente via
+ * `readProperty`, lasciando a node-wot la risoluzione delle form. Poi applica
+ * le soglie e segnala i rischi.
  */
 export const startDiagnosticTool = async (config: DiagnosticConfig) => {
   const intervalMs = config.intervalMs ?? 6000;

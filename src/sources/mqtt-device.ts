@@ -3,14 +3,11 @@ import { ActuatorDeviceSource, DeviceSource } from "./device-source";
 import { ActuatorSource, ComponentSource, ControlActuatorReading } from "./types";
 
 /**
- * TRASPORTO MQTT VERSO I COMPONENTI FISICI.
+ * Canale verso i componenti fisici: i dispositivi reali pubblicano qui le
+ * proprie misure e ricevono i comandi, su topic dedicati.
  *
- * E' il confine fra mondo fisico e mondo digitale: i dispositivi reali
- * pubblicano le proprie misure e ricevono i comandi qui, su topic dedicati.
- *
- * Da non confondere con il binding MQTT di node-wot (`server.ts`), che ha lo
- * scopo opposto: quello espone il gemello ai consumer WoT, questo raccoglie il
- * dato dalla parte reale. Sono i due lati del gemello digitale.
+ * Da non confondere con il binding MQTT di node-wot (`server.ts`): quello
+ * espone il gemello ai consumer, questo raccoglie il dato dalla parte reale.
  */
 
 /** Radice dei topic riservati ai componenti fisici. */
@@ -62,8 +59,8 @@ const subscribeTelemetry = <TReading extends object>(
 };
 
 /**
- * Collega un componente reale: le sue misure arrivano da MQTT, il fallback
- * simulato copre le grandezze mancanti e i periodi di silenzio.
+ * Collega un componente reale: le misure arrivano da MQTT, il fallback simulato
+ * copre le grandezze mancanti e i periodi di silenzio.
  */
 export const createMqttDeviceSource = <TReading extends object>(
   transport: DeviceTransport,

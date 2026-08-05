@@ -2,15 +2,9 @@ import mqtt from "mqtt";
 import { COMPONENT_NAMES, ComponentName, commandTopic, telemetryTopic } from "../src/sources";
 
 /**
- * EMULATORE DI COMPONENTE FISICO.
- *
- * Sta *fuori* dal gemello digitale: rappresenta la parte reale del sistema, il
- * dispositivo che nella realta' sarebbe collegato al bus di bordo. Pubblica le
- * proprie misure sul topic del componente e, se e' l'attuatore, resta in ascolto
- * dei comandi che il gemello gli inoltra.
- *
- * Serve a mostrare che il gemello continua a funzionare con una o piu' parti
- * reali presenti, e che riprende dalla simulazione appena il dispositivo tace.
+ * Emulatore di componente fisico. Sta fuori dal gemello di proposito: qui e'
+ * la parte reale, il dispositivo che sarebbe collegato al bus di bordo.
+ * Pubblica le proprie misure e, se e' l'attuatore, ascolta i comandi.
  *
  * Uso:
  *   npm run device -- energyStorage
@@ -31,10 +25,8 @@ if (!component) {
   process.exit(1);
 }
 
-/**
- * Misure volutamente distinguibili da quelle del modello: servono a rendere
- * evidente, su dashboard e log, quali grandezze arrivano dalla parte reale.
- */
+// Valori scelti diversi da quelli del modello, cosi' su dashboard e log si
+// vede subito cosa arriva dalla parte reale.
 const readings: Record<ComponentName, () => Record<string, unknown>> = {
   energyStorage: () => ({
     // SoH sotto la soglia diagnostica: il Diagnostic Tool deve reagire.

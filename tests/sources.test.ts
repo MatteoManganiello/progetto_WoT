@@ -10,15 +10,11 @@ import {
 import { suite, test } from "./harness";
 
 /**
- * SEPARAZIONE FRA PARTE DIGITALE E PARTE FISICA.
+ * Verifica che il gemello regga qualunque combinazione di componenti reali e
+ * che torni alla simulazione quando la parte reale tace.
  *
- * Verifica la proprieta' che qualifica un gemello digitale: continuare a
- * funzionare qualunque sia la combinazione di componenti reali presenti nel
- * sistema, e degradare sulla simulazione quando la parte reale tace.
- *
- * I test non usano MQTT: la logica di sostituzione vive in `DeviceSource`, che
- * e' agnostica rispetto al trasporto. L'orologio e' iniettato, cosi' la
- * scadenza delle misure e' verificabile senza attese reali.
+ * Niente MQTT: la logica sta in `DeviceSource`, che non conosce il trasporto.
+ * L'orologio e' iniettato, cosi' la scadenza si verifica senza attese vere.
  */
 export const run = () => {
   suite("Sostituzione fra componenti simulati e reali");

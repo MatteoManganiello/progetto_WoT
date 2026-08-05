@@ -15,18 +15,9 @@ import { CONTROL_ACTUATOR_TD, createControlActuatorThing } from "./control-actua
 import { startDiagnosticTool } from "./consumers/diagnostic-tool";
 
 /**
- * RUNTIME DEL GEMELLO DIGITALE.
- *
- * Un solo processo che:
- *  1. compone le sorgenti del gemello, componente per componente, scegliendo fra
- *     modello simulato e dispositivo fisico (`src/sources/`);
- *  2. espone tre Thing WoT auto-descrittive con node-wot su due binding, HTTP e
- *     MQTT, con fallback controllato quando il broker non e' disponibile;
- *  3. fa avanzare il modello di simulazione del powertrain (`src/sim-state.ts`);
- *  4. serve la dashboard web e avvia il Diagnostic Tool.
- *
- * Le due direzioni del gemello passano da qui: il livello WoT verso i consumer,
- * il canale dei dispositivi verso la parte reale.
+ * Processo principale del gemello: compone le sorgenti (simulate o reali),
+ * espone le tre Thing su HTTP e MQTT, fa avanzare la simulazione e serve la
+ * dashboard.
  */
 
 const httpPort = Number(process.env.HTTP_PORT ?? "8080");
@@ -47,11 +38,8 @@ process.on("unhandledRejection", (reason) => {
   console.error("Unhandled Rejection:", reason);
 });
 
-/**
- * Un gemello digitale che si spegne non serve a niente: e' proprio la continuita'
- * del servizio la sua ragione d'essere. Un client che chiude la connessione a
- * meta' di un long-poll non deve poter fermare la telemetria di tutti gli altri.
- */
+// Un client che chiude la connessione a meta' di un long-poll non deve poter
+// fermare la telemetria di tutti gli altri.
 process.on("uncaughtException", (error) => {
   console.error("[Twin] eccezione non gestita, il gemello resta attivo:", error);
 });
@@ -120,17 +108,9 @@ const isMqttBrokerReachable = async (brokerUrl: string) => {
 };
 
 /**
- * PIANIFICAZIONE DEL BINDING MQTT.
- *
- * `MqttBrokerServer.start()` fallisce se il broker non risponde, e con esso
- * fallirebbe l'intero servient. Si decide quindi *prima* di costruirlo:
- *
- *  1. broker esterno raggiungibile  -> ci si collega;
- *  2. nessun broker in ascolto      -> se ne ospita uno embedded (aedes);
- *  3. MQTT disabilitato o non avviabile -> si resta in HTTP-only.
- *
- * Il gemello continua a funzionare in tutti e tre i casi: e' la continuita' del
- * servizio a essere la sua ragione d'essere, non un protocollo in particolare.
+ * `MqttBrokerServer.start()` fallisce se il broker non risponde, e si trascina
+ * dietro l'intero servient. Meglio decidere prima di costruirlo: broker esterno
+ * se c'e', altrimenti uno embedded, altrimenti solo HTTP.
  */
 type MqttPlan = { config: MqttBrokerServerConfig; mode: "esterno" | "embedded" };
 
@@ -151,12 +131,9 @@ const planMqttBinding = async (): Promise<MqttPlan | undefined> => {
 };
 
 /**
- * Streaming aggregato della telemetria su un topic unico.
- *
- * E' un canale di comodo per il monitoraggio, distinto dalle form MQTT che il
- * binding di node-wot genera per ogni singola affordance: quelle sono descritte
- * nelle Thing Description e sono la via interoperabile, questa e' un riassunto
- * dello stato del gemello su un solo topic.
+ * Telemetria aggregata su un topic unico: canale di comodo per il monitoraggio,
+ * da non confondere con le form MQTT generate dal binding, che sono quelle
+ * descritte nelle Thing Description.
  */
 const startTelemetryStream = (brokerUrl: string) => {
   const client = mqtt.connect(brokerUrl, { reconnectPeriod: 2000 });
@@ -170,10 +147,8 @@ const startTelemetryStream = (brokerUrl: string) => {
 };
 
 /**
- * Stato del gemello composto dalle tre sorgenti. Ogni grandezza viene presa dal
- * componente che ne e' titolare — il SoC dal pacco batteria, la temperatura dal
- * gruppo propulsore — cosi' la composizione resta corretta anche quando solo
- * una parte del sistema e' reale.
+ * Compone lo stato dalle tre sorgenti: ogni grandezza viene presa dal componente
+ * che ne e' titolare (il SoC dal pacco batteria, la temperatura dal propulsore).
  */
 const composeTelemetry = (sources: TwinSources) => {
   const power = sources.powerUnit.snapshot();
@@ -185,11 +160,11 @@ const composeTelemetry = (sources: TwinSources) => {
     ...power,
     ...storage,
     ...control,
-    // `storage` sovrascrive `power` sui campi in comune: sul pacco batteria e'
-    // il pacco a essere titolare del SoC. La temperatura no: quella rilevante
-    // per gli eventi e' quella del gruppo propulsore, e va ripristinata.
+    // `storage` sovrascrive `power` sui campi comuni, ed e' giusto per il SoC.
+    // Per la temperatura no: quella che conta per gli eventi e' del propulsore.
     temperatureC: power.temperatureC,
-    // Provenienza del dato: un consumer sa cosa e' misurato e cosa e' stimato.
+    // provenienza del dato, cosi' un consumer distingue misurato da stimato
+
     origins: {
       powerUnit: sources.powerUnit.origin(),
       energyStorage: sources.energyStorage.origin(),
@@ -259,10 +234,8 @@ const startDashboardServer = () => {
 // ---------------------------------------------------------------------------
 
 /**
- * Un servient, due binding. Le affordance sono dichiarate una volta sola nelle
- * Thing Description: e' node-wot a generare, per ciascuna, una `form` per ogni
- * protocollo attivo. Un consumer legge la TD e sceglie la form che sa parlare,
- * senza che il suo codice cambi. E' la potenzialita' dei binding templates.
+ * Un servient, due binding: le affordance sono dichiarate una volta sola nelle
+ * TD ed e' node-wot a generare una `form` per ogni protocollo attivo.
  */
 const buildServient = (mqttConfig?: MqttBrokerServerConfig) => {
   const servient = new Servient();
@@ -297,9 +270,8 @@ const startServient = async () => {
       console.log(`Binding MQTT attivo (broker ${plan.mode}) su ${mqttBrokerUrl}`);
       return { wot, mqttActive: true };
     } catch (error) {
-      // Il tentativo comprende anche il binding HTTP: si evita di attribuire a
-      // MQTT una causa che potrebbe essere altrove (per esempio, porta occupata).
-      // Se il secondo tentativo fallisce a sua volta, l'errore vero risale.
+      // Il tentativo comprende anche HTTP, quindi la causa potrebbe non essere
+      // MQTT (es. porta occupata). Se fallisce anche il secondo, l'errore risale.
       const cause = error instanceof Error ? error.message : String(error);
       console.warn(`Avvio con binding MQTT fallito (${cause}); nuovo tentativo in sola modalita' HTTP.`);
     }
@@ -333,11 +305,8 @@ const main = async () => {
 
   await Promise.all([powerUnit.expose(), energyStorage.expose(), controlActuator.expose()]);
 
-  /*
-   * Le proprieta' da notificare a ogni ciclo si ricavano dalle Thing Description
-   * stesse: e' la TD la sola fonte di verita' su cosa la Thing espone, e una
-   * seconda lista scritta a mano finirebbe per divergere.
-   */
+  // Le proprieta' da notificare si ricavano dalle TD: una seconda lista scritta
+  // a mano prima o poi divergerebbe.
   const propertyFeeds = [
     { thing: powerUnit, properties: Object.keys(POWER_UNIT_TD.properties ?? {}) },
     { thing: energyStorage, properties: Object.keys(ENERGY_STORAGE_TD.properties ?? {}) },
@@ -366,17 +335,14 @@ const main = async () => {
   setInterval(() => {
     tickCount += 1;
 
-    // Il modello avanza sempre: e' il fallback delle parti non reali, e deve
-    // restare allineato per subentrare quando un dispositivo si scollega.
+    // Il modello avanza sempre, anche con parti reali collegate: deve restare
+    // allineato per subentrare quando un dispositivo si scollega.
     const modelEvents = simulation.update();
     const state = composeTelemetry(sources);
 
-    /*
-     * Le soglie si valutano sullo stato *effettivo* del gemello, non su quello
-     * simulato: se il pacco batteria e' reale, e' la sua temperatura misurata a
-     * dover far scattare l'allarme. L'anomalia resta al modello, perche' si
-     * basa su una persistenza calcolata al suo interno.
-     */
+    // Soglie valutate sullo stato effettivo, non su quello simulato: con il
+    // pacco reale collegato deve essere la sua temperatura a far scattare
+    // l'allarme. L'anomalia resta al modello, che ne calcola la persistenza.
     const events = {
       criticalOverheat: state.temperatureC > EVENT_THRESHOLDS.overheatC,
       lowEnergyWarning: state.estimatedRangeKm < EVENT_THRESHOLDS.lowRangeKm,

@@ -9,12 +9,9 @@ export { createSimulatedSources } from "./simulated";
 export { DEVICE_TOPIC_ROOT, commandTopic, telemetryTopic } from "./mqtt-device";
 
 /**
- * COMPOSIZIONE DEL GEMELLO.
- *
- * Decide, componente per componente, se lo stato viene dal modello simulato o
- * da un dispositivo fisico. La scelta e' esterna al codice — variabile
- * d'ambiente `REAL_COMPONENTS` — proprio perche' il livello WoT non deve
- * cambiare quando una parte del sistema diventa reale.
+ * Decide componente per componente se lo stato viene dal modello o da un
+ * dispositivo fisico. La scelta sta fuori dal codice (`REAL_COMPONENTS`),
+ * cosi' il livello WoT non cambia quando una parte diventa reale.
  */
 
 /** Legge `REAL_COMPONENTS`, ignorando i nomi non riconosciuti. */

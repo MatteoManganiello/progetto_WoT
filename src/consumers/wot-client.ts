@@ -3,16 +3,12 @@ import { HttpClientFactory } from "@node-wot/binding-http";
 import { MqttClientFactory } from "@node-wot/binding-mqtt";
 
 /**
- * Servient lato CLIENT.
+ * Servient lato client: registra le factory dei protocolli che il consumer sa
+ * parlare, e da qui in poi non si costruisce piu' nessun URL a mano — a
+ * risolvere le `forms` della TD ci pensa node-wot.
  *
- * Registra le client factory dei protocolli che il consumer sa parlare: da
- * questo momento non costruisce piu' URL a mano. E' node-wot a risolvere le
- * `forms` dichiarate nella Thing Description e a scegliere come raggiungere
- * ogni interazione.
- *
- * Registrare anche MQTT accanto a HTTP e' esattamente il valore dei binding
- * templates: il codice del consumer resta identico, e' la TD a determinare su
- * quale protocollo l'interazione viaggia.
+ * Registrando anche MQTT, lo stesso codice viaggia su HTTP o su MQTT a seconda
+ * della form scelta.
  */
 export const createConsumerServient = async () => {
   const servient = new Servient();
@@ -25,9 +21,8 @@ export const createConsumerServient = async () => {
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
- * Discovery per URL: scarica la TD e la "consuma". Il risultato e' un oggetto
- * che espone proprieta' e azioni cosi' come le dichiara il dispositivo, senza
- * conoscenza a priori dell'interfaccia.
+ * Scarica la TD dall'URL e la consuma: il risultato espone proprieta' e azioni
+ * come le dichiara il dispositivo, senza conoscerne prima l'interfaccia.
  */
 export const consumeThing = async (
   wot: typeof WoT,

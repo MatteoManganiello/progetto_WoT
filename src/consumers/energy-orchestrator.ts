@@ -9,9 +9,9 @@ type OrchestratorConfig = {
 type DriveMode = "Full Electric" | "Hybrid" | "Sport" | "Save";
 
 /**
- * Regole a soglia per la gestione automatica della coppia: dalla modalita' di
- * guida discendono coppia richiesta e ripartizione fra i due motori.
- * Funzione pura, cosi' e' verificabile dai test senza avviare un servient.
+ * Regole per la gestione automatica della coppia: dalla modalita' di guida
+ * discendono coppia richiesta e ripartizione fra i due motori. Pura, cosi' si
+ * testa senza avviare un servient.
  */
 export const computeDriveMode = (snapshot: { batterySoC: number; speedKmh: number }): DriveMode => {
   if (snapshot.batterySoC < 15) {
@@ -27,12 +27,11 @@ export const computeDriveMode = (snapshot: { batterySoC: number; speedKmh: numbe
 };
 
 /**
- * ENERGY ORCHESTRATOR — consumer WoT di riferimento.
+ * Consumer che chiude l'anello di controllo: legge le proprieta' e agisce con
+ * `invokeAction`, senza conoscere ne' URL ne' protocollo.
  *
- * Incluso a scopo architetturale: mostra come un consumer possa chiudere l'anello
- * di controllo leggendo le proprieta' e agendo con `invokeAction`, senza conoscere
- * ne' URL ne' protocollo. Non viene avviato dal runtime: il controllo della
- * modalita' di guida resta manuale, dalla dashboard.
+ * Non viene avviato dal runtime, altrimenti si contenderebbe la modalita' di
+ * guida con i comandi manuali della dashboard.
  */
 export const startEnergyOrchestrator = async (config: OrchestratorConfig) => {
   const intervalMs = config.intervalMs ?? 4000;

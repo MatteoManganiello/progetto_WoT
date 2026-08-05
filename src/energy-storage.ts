@@ -2,11 +2,8 @@ import { TwinSources } from "./sources";
 import { bindReadHandlers } from "./wot-io";
 
 /**
- * Thing WoT "EnergyStorage": pacco batteria ad alta tensione.
- *
- * Espone solo Properties: e' un sottosistema osservabile, non attuabile.
- * Legge dalla porta `sources.energyStorage`, indifferente al fatto che il pacco
- * sia simulato o un dispositivo reale collegato al sistema.
+ * Thing "EnergyStorage": pacco batteria ad alta tensione. Solo Properties,
+ * perche' e' un sottosistema osservabile ma non attuabile.
  */
 export const ENERGY_STORAGE_TD: WoT.ExposedThingInit = {
   "@context": "https://www.w3.org/2022/wot/td/v1.1",

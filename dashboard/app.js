@@ -1,9 +1,7 @@
 /**
- * Predictive Dashboard: consumer WoT lato browser.
- *
- * Non contiene URL di proprieta' o di azioni. Scarica le Thing Description di
- * PowerUnit e ControlActuator e ricava da esse le `forms` di ogni interazione.
- * Cambiare il binding lato server non richiede modifiche qui.
+ * Dashboard: consumer WoT lato browser. Nessun URL di proprieta' o azioni
+ * scritto qui dentro — scarica le TD di PowerUnit e ControlActuator e ricava da
+ * quelle le `forms` di ogni interazione.
  */
 
 const params = new URLSearchParams(window.location.search);
@@ -55,11 +53,9 @@ const hasOp = (form, op, fallback) => {
   return Array.isArray(ops) ? ops.includes(op) : ops === op;
 };
 
-/**
- * node-wot genera le href con l'indirizzo con cui il server si e' annunciato,
- * che puo' non coincidere con quello da cui la pagina e' servita. Si conserva
- * il percorso dichiarato nella TD e si riallinea solo l'origine.
- */
+// node-wot genera le href con l'indirizzo con cui il server si e' annunciato,
+// che puo' non essere quello da cui arriva la pagina: si tiene il percorso
+// della TD e si riallinea solo l'origine.
 const alignOrigin = (href) => {
   try {
     const url = new URL(href);
